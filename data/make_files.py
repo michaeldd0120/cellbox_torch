@@ -11,8 +11,8 @@ viabilities_vector = viabilities_vector.reshape(-1, 1)
 
 # Convert the list to a pandas DataFrame
 df = pd.DataFrame(adata.var)
-filename = 'node_index.csv'
-df.to_csv(filename, index=False)
+filename = 'node_Index.csv'
+df.to_csv(filename)
 
 
 data = np.concatenate((np.array(adata.X), viabilities_vector), axis=1)
