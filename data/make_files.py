@@ -19,6 +19,6 @@ data = np.concatenate((np.array(adata.X), viabilities_vector), axis=1)
 np.savetxt('expr.csv', data, delimiter=',', fmt='%f')
 
 pert_labels = np.identity(93)
-padding = np.zeros((93, 3507))
+padding = np.zeros((93, 3508-93))
 bang = np.concatenate((pert_labels, padding), axis=1)
 np.savetxt('pert.csv', bang, delimiter=',', fmt='%f')
