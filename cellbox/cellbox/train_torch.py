@@ -271,6 +271,7 @@ class Screenshot(dict):
             params = model.state_dict()
             new_params = {}
             for item in params:
+                params[item].cpu()
                 try:
                     new_params[item] = pd.DataFrame(params[item].detach().numpy(), index=node_index[0])
                 except Exception:
