@@ -34,11 +34,11 @@ def get_dxdt(args, params):
     """calculate the derivatives dx/dt in the ODEs"""
     if args.ode_degree == 1:
         def weighted_sum(x, mask=None):
-            if mask is not None: return torch.matmul(params['W']*mask, x)
+            if mask is not None: return torch.matmul(params['W']*mask.to(x.device), x)
             else: return torch.matmul(params['W'], x)
     elif args.ode_degree == 2:
         def weighted_sum(x, mask=None):
-            if mask is not None: torch.matmul(params['W']*mask, x) + torch.reshape(torch.sum(params['W']*mask, dim=1), (args.n_x, 1)) * x
+            if mask is not None: torch.matmul(params['W']*mask,to(x.device), x) + torch.reshape(torch.sum(params['W']*mask, dim=1), (args.n_x, 1)) * x
             return torch.matmul(params['W'], x) + torch.reshape(torch.sum(params['W'], dim=1), (args.n_x, 1)) * x
     else:
         raise Exception("Illegal ODE degree. Choose from [1,2].")
