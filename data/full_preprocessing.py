@@ -406,7 +406,7 @@ prots_total = list(set(prots_total).intersection(inds_final))
 print(f"Total proteins after intersection with signal-to-noise proteins: {len(prots_total)}")
 
 # Subset
-cell_viab_acti_cols = ["Cell_viability%_(cck8Drug-blk)/(control-blk)*100"] + [a for a in expr_csv.columns.tolist() if a.startswith("a")]
+cell_viab_acti_cols = [a for a in expr_csv.columns.tolist() if a.startswith("a")] + ["Cell_viability%_(cck8Drug-blk)/(control-blk)*100"]
 # all_cols = prots_total + cell_viab_acti_cols
 all_cols = inds_final + cell_viab_acti_cols
 expr_csv_sub = expr_csv[all_cols].astype(float)
