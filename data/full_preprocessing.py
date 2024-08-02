@@ -409,6 +409,7 @@ all_cols = prots_total + cell_viab_acti_cols
 expr_csv_sub = expr_csv[all_cols].astype(float)
 pert_csv_sub = pert_csv[all_cols].astype(float)
 
+print(list(expr_csv_sub.columns[:125]))
 expr_csv_sub.to_csv('expr.csv', index=False, header=False)
 pert_csv_sub.to_csv('pert.csv', index=False, header=False)
 columns = pert_csv_sub.columns.tolist()
