@@ -380,20 +380,18 @@ mean_var_df = variances.merge(means, right_index=True, left_index=True)
 mean_var_df['dispersion'] = abs(mean_var_df["std"] / mean_var_df["mean"])
 
 dispersion_lower = np.percentile(mean_var_df["dispersion"], 88)
-dispersion_upper = np.percentile(mean_var_df["dispersion"], 90)
+dispersion_upper = np.percentile(mean_var_df["dispersion"], 92)
 print(dispersion_lower)
 print(dispersion_upper)
 prots_high_var = mean_var_df[(mean_var_df["dispersion"] >= dispersion_lower) & (mean_var_df["dispersion"] <= dispersion_upper)].index.tolist()
 
 # Choose proteins in the dataset with no NaNs
-prots_no_nan = prots_info[prots_info["NaN_prop_all_samples"] == 0.0].index.tolist()
+prots_no_nan = prots_info[prots_info["NaN_prop_all_samples"] == 0.0]["proteins"].tolist()
 
 # Choose proteins in the dataset with intensity in range
 df_temp = expr_csv.iloc[:, :-21]
 prots_intermediate_intensity = df_temp.loc[:, ((df_temp >= intensity_lower) & (df_temp <= intensity_upper)).all()].columns.tolist()
-
 prots_total = prots_tar + list(set(prots_high_var).intersection(prots_no_nan).intersection(prots_intermediate_intensity))
-
 # Total prots
 prots_total = list(
     set(prots_total)
@@ -407,8 +405,7 @@ print(f"Total proteins after intersection with signal-to-noise proteins: {len(pr
 
 # Subset
 cell_viab_acti_cols = [a for a in expr_csv.columns.tolist() if a.startswith("a")] + ["Cell_viability%_(cck8Drug-blk)/(control-blk)*100"]
-# all_cols = prots_total + cell_viab_acti_cols
-all_cols = inds_final + cell_viab_acti_cols
+all_cols = prots_total + cell_viab_acti_cols
 expr_csv_sub = expr_csv[all_cols].astype(float)
 pert_csv_sub = pert_csv[all_cols].astype(float)
 
