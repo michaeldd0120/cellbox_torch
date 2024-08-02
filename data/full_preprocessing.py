@@ -250,33 +250,33 @@ node_index_csv.to_csv(
 # # - Only data samples passing the criteria are excluded, not the whole protein column of which they are in
 # # - Mean and std are calculated using the full matrix
 
-# std_old = 0.0
-# std_new = 0.0
-# df_expr = expr_csv.iloc[:, :-21]
-# inds = []
-# tole = 0.001
-# signal = np.zeros(df_expr.shape)
-# excluded = np.ones(df_expr.shape)
+std_old = 0.0
+std_new = 0.0
+df_expr = expr_csv.iloc[:, :-21]
+inds = []
+tole = 0.001
+signal = np.zeros(df_expr.shape)
+excluded = np.ones(df_expr.shape)
 
-# while (std_old == 0) or (abs(std_new - std_old) > tole):
-#     print(f"std_old: {std_old:.3f}, std_new: {std_new:.3f}")
-#     std_old = std_new
-#     vec = df_expr.to_numpy().flatten()
+while (std_old == 0) or (abs(std_new - std_old) > tole):
+    print(f"std_old: {std_old:.3f}, std_new: {std_new:.3f}")
+    std_old = std_new
+    vec = df_expr.to_numpy().flatten()
 
-#     # Get the samples that are smaller than 2.5*std
-#     mean = np.mean(vec[signal.flatten() == 0])
-#     std_new = np.std(vec[signal.flatten() == 0])
-#     print(f"mean: {mean:.3f}, std: {std_new:.3f}")
+    # Get the samples that are smaller than 2.5*std
+    mean = np.mean(vec[signal.flatten() == 0])
+    std_new = np.std(vec[signal.flatten() == 0])
+    print(f"mean: {mean:.3f}, std: {std_new:.3f}")
 
-#     # Get the samples that are larger than 2.5*std
-#     # 1 in signal means the sample > 2.5*std and vice versa
-#     signal = (np.abs(df_expr.to_numpy()) > 2.5*std_new + mean)*excluded
-#     excluded = excluded * (1-signal)
-#     signal_df = pd.DataFrame(signal, columns=df_expr.columns, index=df_expr.index)
-#     inds.extend(signal_df.any(axis=0)[signal_df.any(axis=0)].index.tolist())
+    # Get the samples that are larger than 2.5*std
+    # 1 in signal means the sample > 2.5*std and vice versa
+    signal = (np.abs(df_expr.to_numpy()) > 2.5*std_new + mean)*excluded
+    excluded = excluded * (1-signal)
+    signal_df = pd.DataFrame(signal, columns=df_expr.columns, index=df_expr.index)
+    inds.extend(signal_df.any(axis=0)[signal_df.any(axis=0)].index.tolist())
 
 # print(f"std_old: {std_old:.3f}, std_new: {std_new:.3f}")
-# inds_method_1 = list(set(inds))
+inds_method_1 = list(set(inds))
 
 
 
@@ -285,37 +285,37 @@ node_index_csv.to_csv(
 # # - When a data sample is excluded, the whole protein column in which that protein stays in are excluded
 # # - Mean and std are calculated using the full matrix
 
-# std_old = 0.0
-# std_new = 0.0
-# df_expr = expr_csv.iloc[:, :-21]
-# inds = []
-# tole = 0.001
-# signal = np.zeros(df_expr.shape)
-# excluded = np.ones(df_expr.shape)
+std_old = 0.0
+std_new = 0.0
+df_expr = expr_csv.iloc[:, :-21]
+inds = []
+tole = 0.001
+signal = np.zeros(df_expr.shape)
+excluded = np.ones(df_expr.shape)
 
-# while (std_old == 0) or (abs(std_new - std_old) > tole):
-#     print(f"std_old: {std_old:.3f}, std_new: {std_new:.3f}")
-#     std_old = std_new
-#     vec = df_expr.to_numpy().flatten()
+while (std_old == 0) or (abs(std_new - std_old) > tole):
+    print(f"std_old: {std_old:.3f}, std_new: {std_new:.3f}")
+    std_old = std_new
+    vec = df_expr.to_numpy().flatten()
 
-#     # Get the samples that are smaller than 2.5*std
-#     mean = np.mean(vec[signal.flatten() == 0])
-#     std_new = np.std(vec[signal.flatten() == 0])
-#     print(f"mean: {mean:.3f}, std: {std_new:.3f}")
+    # Get the samples that are smaller than 2.5*std
+    mean = np.mean(vec[signal.flatten() == 0])
+    std_new = np.std(vec[signal.flatten() == 0])
+    print(f"mean: {mean:.3f}, std: {std_new:.3f}")
 
-#     # Get the samples that are larger than 2.5*std
-#     # 1 in signal means the sample > 2.5*std and vice versa
-#     signal = (np.abs(df_expr.to_numpy()) > 2.5*std_new + mean)*excluded
-#     signal_df = pd.DataFrame(signal, columns=df_expr.columns, index=df_expr.index)
+    # Get the samples that are larger than 2.5*std
+    # 1 in signal means the sample > 2.5*std and vice versa
+    signal = (np.abs(df_expr.to_numpy()) > 2.5*std_new + mean)*excluded
+    signal_df = pd.DataFrame(signal, columns=df_expr.columns, index=df_expr.index)
 
-#     # ind is a list of indices of columns that have at least one excluded data sample
-#     ind = signal_df.any(axis=0)[signal_df.any(axis=0)].index.tolist()
-#     inds.extend(ind)
-#     int_ind = [signal_df.columns.tolist().index(i) for i in ind]
-#     excluded[:, int_ind] = np.zeros((excluded.shape[0], len(int_ind)))
+    # ind is a list of indices of columns that have at least one excluded data sample
+    ind = signal_df.any(axis=0)[signal_df.any(axis=0)].index.tolist()
+    inds.extend(ind)
+    int_ind = [signal_df.columns.tolist().index(i) for i in ind]
+    excluded[:, int_ind] = np.zeros((excluded.shape[0], len(int_ind)))
 
 # print(f"std_old: {std_old:.3f}, std_new: {std_new:.3f}")
-# inds_method_2 = list(set(inds))
+inds_method_2 = list(set(inds))
 
 
 
@@ -323,90 +323,97 @@ node_index_csv.to_csv(
 # # - Only data samples passing the criteria are excluded, not the whole protein column of which they are in
 # # - Mean and std are calculated for each perturbation condition
 
-# df_expr = expr_csv.iloc[:, :-21]
-# std_old = np.zeros(df_expr.shape)
-# std_new = np.zeros(df_expr.shape)
-# inds = []
-# tole = 0.001
-# signal = np.zeros(df_expr.shape)
-# excluded = np.ones(df_expr.shape)
-# i = -1
+df_expr = expr_csv.iloc[:, :-21]
+std_old = np.zeros(df_expr.shape)
+std_new = np.zeros(df_expr.shape)
+inds = []
+tole = 0.001
+signal = np.zeros(df_expr.shape)
+excluded = np.ones(df_expr.shape)
+i = -1
 
-# while np.all(std_old == 0) or np.all(np.abs(std_new - std_old) > tole):
-#     i += 1
-#     print(f"Iteration {i}")
-#     #print(f"std_old: {std_old:.3f}, std_new: {std_new:.3f}")
-#     std_old = std_new
-#     vec = df_expr.to_numpy()
+while np.all(std_old == 0) or np.all(np.abs(std_new - std_old) > tole):
+    i += 1
+    print(f"Iteration {i}")
+    #print(f"std_old: {std_old:.3f}, std_new: {std_new:.3f}")
+    std_old = std_new
+    vec = df_expr.to_numpy()
 
-#     # Get the samples that are smaller than 2.5*std
-#     mask = vec*excluded
-#     mask[mask == 0.0] = np.nan
-#     if np.all(np.any(np.isnan(mask), axis=0)):
-#         print("Break")
-#         break
-#     mean = np.nanmean(mask, axis=1, keepdims=True)
-#     std_new = np.nanstd(mask, axis=1, keepdims=True)
-#     #print(f"mean: {mean:.3f}, std: {std_new:.3f}")
+    # Get the samples that are smaller than 2.5*std
+    mask = vec*excluded
+    mask[mask == 0.0] = np.nan
+    if np.all(np.any(np.isnan(mask), axis=0)):
+        print("Break")
+        break
+    mean = np.nanmean(mask, axis=1, keepdims=True)
+    std_new = np.nanstd(mask, axis=1, keepdims=True)
+    #print(f"mean: {mean:.3f}, std: {std_new:.3f}")
 
-#     # Get the samples that are larger than 2.5*std
-#     # 1 in signal means the sample > 2.5*std and vice versa
-#     signal = (np.abs(df_expr.to_numpy()) > 2.5*std_new + mean)*excluded
-#     excluded = excluded * (1-signal)
-#     signal_df = pd.DataFrame(signal, columns=df_expr.columns, index=df_expr.index)
-#     inds.extend(signal_df.any(axis=0)[signal_df.any(axis=0)].index.tolist())
-#     print(f"Length of inds: {len(set(inds))}")
+    # Get the samples that are larger than 2.5*std
+    # 1 in signal means the sample > 2.5*std and vice versa
+    signal = (np.abs(df_expr.to_numpy()) > 2.5*std_new + mean)*excluded
+    excluded = excluded * (1-signal)
+    signal_df = pd.DataFrame(signal, columns=df_expr.columns, index=df_expr.index)
+    inds.extend(signal_df.any(axis=0)[signal_df.any(axis=0)].index.tolist())
+    # print(f"Length of inds: {len(set(inds))}")
 
 # #print(f"std_old: {std_old:.3f}, std_new: {std_new:.3f}")
-# inds_method_3 = list(set(inds))
+inds_method_3 = list(set(inds))
 
 
 # # To retain the highest fidelity proteins, we select the ones in the middle
-# inds_final = list(set(inds_method_1).intersection(set(inds_method_2)).intersection(set(inds_method_3)))
-# #dispersion_thres = 0.035
-# intensity_upper = 2.0
-# intensity_lower = -4.0
+inds_final = list(set(inds_method_1).intersection(set(inds_method_2)).intersection(set(inds_method_3)))
+#dispersion_thres = 0.035
+intensity_upper = 2.0
+intensity_lower = -4.0
 
-# # Choose target proteins
-# prots_tar = [p[1:] for p in expr_csv.columns.tolist()[-20:]]
+# Choose target proteins
+prots_tar = [p[1:] for p in expr_csv.columns.tolist()[-20:]]
 
-# # Choose proteins in the dataset with high log2 variance, using df_tar values (log2(intensity))
-# df_tar_temp = df_tar.iloc[:, :-1].dropna(axis=1)
-# variances = df_tar_temp.std(axis=0).to_frame().rename(columns={0: "std"})
-# means = df_tar_temp.mean(axis=0).to_frame().rename(columns={0: "mean"})
-# #variances = expr_csv.iloc[:, :-21].std(axis=0).to_frame().rename(columns={0: "std"})
-# #means = expr_csv.iloc[:, :-21].mean(axis=0).to_frame().rename(columns={0: "mean"})
-# mean_var_df = variances.merge(means, right_index=True, left_index=True)
-# mean_var_df['dispersion'] = abs(mean_var_df["std"] / mean_var_df["mean"])
+# Choose proteins in the dataset with high log2 variance, using df_tar values (log2(intensity))
+df_tar_temp = df_tar.iloc[:, :-1].dropna(axis=1)
+variances = df_tar_temp.std(axis=0).to_frame().rename(columns={0: "std"})
+means = df_tar_temp.mean(axis=0).to_frame().rename(columns={0: "mean"})
+#variances = expr_csv.iloc[:, :-21].std(axis=0).to_frame().rename(columns={0: "std"})
+#means = expr_csv.iloc[:, :-21].mean(axis=0).to_frame().rename(columns={0: "mean"})
+mean_var_df = variances.merge(means, right_index=True, left_index=True)
+mean_var_df['dispersion'] = abs(mean_var_df["std"] / mean_var_df["mean"])
 
-# dispersion_lower = np.percentile(mean_var_df["dispersion"], 88)
-# dispersion_upper = np.percentile(mean_var_df["dispersion"], 90)
-# print(dispersion_lower)
-# print(dispersion_upper)
-# prots_high_var = mean_var_df[(mean_var_df["dispersion"] >= dispersion_lower) & (mean_var_df["dispersion"] <= dispersion_upper)].index.tolist()
+dispersion_lower = np.percentile(mean_var_df["dispersion"], 88)
+dispersion_upper = np.percentile(mean_var_df["dispersion"], 90)
+print(dispersion_lower)
+print(dispersion_upper)
+prots_high_var = mean_var_df[(mean_var_df["dispersion"] >= dispersion_lower) & (mean_var_df["dispersion"] <= dispersion_upper)].index.tolist()
 
-# # Choose proteins in the dataset with no NaNs
-# prots_no_nan = prots_info[prots_info["NaN_prop_all_samples"] == 0.0].index.tolist()
+# Choose proteins in the dataset with no NaNs
+prots_no_nan = prots_info[prots_info["NaN_prop_all_samples"] == 0.0].index.tolist()
 
-# # Choose proteins in the dataset with intensity in range
-# df_temp = expr_csv.iloc[:, :-21]
-# prots_intermediate_intensity = df_temp.loc[:, ((df_temp >= intensity_lower) & (df_temp <= intensity_upper)).all()].columns.tolist()
+# Choose proteins in the dataset with intensity in range
+df_temp = expr_csv.iloc[:, :-21]
+prots_intermediate_intensity = df_temp.loc[:, ((df_temp >= intensity_lower) & (df_temp <= intensity_upper)).all()].columns.tolist()
 
-# prots_total = prots_tar + list(set(prots_high_var).intersection(prots_no_nan).intersection(prots_intermediate_intensity))
+prots_total = prots_tar + list(set(prots_high_var).intersection(prots_no_nan).intersection(prots_intermediate_intensity))
 
-# # Total prots
-# prots_total = list(
-#     set(prots_total)
-#     .intersection(expr_csv.columns.tolist())
-# )
-# print(f"Total proteins in subsetted dataset: {len(prots_total)}")
+# Total prots
+prots_total = list(
+    set(prots_total)
+    .intersection(expr_csv.columns.tolist())
+)
+print(f"Total proteins in subsetted dataset: {len(prots_total)}")
 
-# # Subset one more time between these prots and the prots after signal-to-noise
-# prots_total = list(set(prots_total).intersection(inds_final))
-# print(f"Total proteins after intersection with signal-to-noise proteins: {len(prots_total)}")
+# Subset one more time between these prots and the prots after signal-to-noise
+prots_total = list(set(prots_total).intersection(inds_final))
+print(f"Total proteins after intersection with signal-to-noise proteins: {len(prots_total)}")
 
-# # Subset
-# cell_viab_acti_cols = ["Cell_viability%_(cck8Drug-blk)/(control-blk)*100"] + [a for a in expr_csv.columns.tolist() if a.startswith("a")]
+# Subset
+cell_viab_acti_cols = ["Cell_viability%_(cck8Drug-blk)/(control-blk)*100"] + [a for a in expr_csv.columns.tolist() if a.startswith("a")]
 # all_cols = prots_total + cell_viab_acti_cols
-# expr_csv_sub = expr_csv[all_cols].astype(float)
-# pert_csv_sub = pert_csv[all_cols].astype(float)
+all_cols = inds_final
+expr_csv_sub = expr_csv[all_cols].astype(float)
+pert_csv_sub = pert_csv[all_cols].astype(float)
+
+expr_csv_sub.to_csv('expr.csv')
+pert_csv_sub.to_csv('pert.csv')
+columns = pert_csv_sub.columns.tolist()
+node_index_csv = pd.DataFrame({"A": columns})
+node_index_csv.to_csv('node_Index.csv')
