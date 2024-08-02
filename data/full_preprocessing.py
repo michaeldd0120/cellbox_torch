@@ -412,8 +412,8 @@ all_cols = inds_final + cell_viab_acti_cols
 expr_csv_sub = expr_csv[all_cols].astype(float)
 pert_csv_sub = pert_csv[all_cols].astype(float)
 
-expr_csv_sub.to_csv('expr.csv')
-pert_csv_sub.to_csv('pert.csv')
+expr_csv_sub.to_csv('expr.csv', index=False, header=False)
+pert_csv_sub.to_csv('pert.csv', index=False, header=False)
 columns = pert_csv_sub.columns.tolist()
 node_index_csv = pd.DataFrame({"A": columns})
-node_index_csv.to_csv('node_Index.csv')
+node_index_csv.to_csv('node_Index.csv', index=False, header=False)
