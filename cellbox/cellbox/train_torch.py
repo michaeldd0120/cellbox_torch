@@ -140,10 +140,10 @@ def train_substage(model, lr_val, l1_lambda, l2_lambda, n_epoch, n_iter, n_iter_
                         else: return torch.matmul(model.params['W'], x)
                     #START
                     W_mask = (1.0 - np.diag(np.ones([self.n_x])))
-                    W_mask[self.args.n_activity_nodes:, :] = np.zeros([self.n_x - self.args.n_activity_nodes, self.n_x])
-                    W_mask[:, self.args.n_protein_nodes:self.args.n_activity_nodes] = np.zeros([self.n_x, self.args.n_activity_nodes - self.args.n_protein_nodes])
-                    W_mask[self.args.n_protein_nodes:self.args.n_activity_nodes, self.args.n_activity_nodes:] = np.zeros([self.args.n_activity_nodes - self.args.n_protein_nodes,
-                                                                                            self.n_x - self.args.n_activity_nodes])
+                    W_mask[model.args.n_activity_nodes:, :] = np.zeros([model.n_x - model.args.n_activity_nodes, model.n_x])
+                    W_mask[:, model.args.n_protein_nodes:model.args.n_activity_nodes] = np.zeros([model.n_x, model.args.n_activity_nodes - model.args.n_protein_nodes])
+                    W_mask[model.args.n_protein_nodes:model.args.n_activity_nodes, model.args.n_activity_nodes:] = np.zeros([model.args.n_activity_nodes - model.args.n_protein_nodes,
+                                                                                            model.n_x - model.args.n_activity_nodes])
                     raise ValueError(f"{W_mask}")
 
                     # END
