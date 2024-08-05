@@ -100,6 +100,7 @@ def train_substage(model, lr_val, l1_lambda, l2_lambda, n_epoch, n_iter, n_iter_
             model.train()
             args.optimizer.zero_grad()
             convergence_metric, yhat, loss_train_i, loss_train_mse_i = _forward_pass(model, x_train, y_train, args)
+            raise ValueError(f"train problem {convergence_metric} {yhat} {loss_train_i} {loss_train_mse_i}")
             loss_train_i.backward()
             args.optimizer.step()
 
@@ -109,7 +110,7 @@ def train_substage(model, lr_val, l1_lambda, l2_lambda, n_epoch, n_iter, n_iter_
                 valid_minibatch = iter(args.iter_monitor)
                 x_valid, y_valid = next(valid_minibatch)
                 convergence_metric, yhat, loss_valid_i, loss_valid_mse_i = _forward_pass(model, x_valid, y_valid, args)
-                raise ValueError(f"train problem {convergence_metric} {yhat} {loss_valid_i} {loss_valid_mse_i}")
+                
 
             # Record results to screenshot
             new_loss = best_params.avg_n_iters_loss(loss_valid_i.item())
