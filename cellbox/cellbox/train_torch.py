@@ -103,7 +103,7 @@ def train_substage(model, lr_val, l1_lambda, l2_lambda, n_epoch, n_iter, n_iter_
             
             loss_train_i.backward()
             args.optimizer.step()
-            raise ValueError(f"{model.params['W']},                  bang bang           {nan_count = torch.isnan(model.params['W']).sum().item()}")
+            raise ValueError(f"{model.params['W']},                  bang bang           {torch.isnan(model.params['W']).sum().item()}")
             # Record training
             with torch.no_grad():
                 
