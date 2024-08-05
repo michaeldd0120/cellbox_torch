@@ -111,10 +111,10 @@ class CellBox(PertBio):
         mean = torch.mean(ys, dim=0)
         sd = torch.std(ys, dim=0)
         yhat = torch.transpose(ys[-1], 0, 1)
-        raise ValueError(f"model problem {yhat}")
         dxdt = self._dxdt(ys[-1], mu_t)
         # [n_x, batch_size] for last ODE step
         convergence_metric = torch.cat([mean, sd, dxdt], dim=0)
+        raise ValueError(f"model problem {convergence_metric} {yhat}")
         return convergence_metric, yhat
     
 
