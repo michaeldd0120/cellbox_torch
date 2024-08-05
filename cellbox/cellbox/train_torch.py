@@ -131,7 +131,7 @@ def train_substage(model, lr_val, l1_lambda, l2_lambda, n_epoch, n_iter, n_iter_
                     torch.ones((n_activity_nodes, 1)), 
                     (0, 0, 0, n_x - n_activity_nodes)
                 ).to(x.device)
-                raise ValueError(f"{x}, {t_mu}, {dt}, {_dXdt}, {n_activity_nodes}, {mask})
+                raise ValueError(f"{x}, {t_mu}, {dt}, {_dXdt}, {n_activity_nodes}, {mask}")
                 for _ in range(n_T):
                     dxdt_current = _dXdt(x, t_mu, mask)
                     dxdt_next = _dXdt(x + dT * dxdt_current, t_mu, mask)
