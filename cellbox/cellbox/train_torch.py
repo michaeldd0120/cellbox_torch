@@ -114,7 +114,7 @@ def train_substage(model, lr_val, l1_lambda, l2_lambda, n_epoch, n_iter, n_iter_
                 # prediction = model(torch.zeros((args.n_x, 1), dtype=torch.float32).to(args.device), x.to(args.device))
 
                 y0 = torch.zeroes((args.n_x, 1), dtype=torch.float32).to(args.device)
-                mu = x.to(args.device))
+                mu = x.to(args.device)
                 
                 mu_t = torch.transpose(mu, 0, 1)
                 mask = model._get_mask()
