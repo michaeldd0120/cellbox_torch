@@ -38,6 +38,8 @@ def _forward_pass(model, x, y, args):
         loss_total, loss_mse = args.loss_fn(y.to(args.device), yhat, param_mat, l1=args.l1_lambda, l2=args.l2_lambda, weight=y.to(args.device))
     else:
         loss_total, loss_mse = args.loss_fn(y.to(args.device), yhat, param_mat, l1=args.l1_lambda, l2=args.l2_lambda)
+    
+    raise ValueError(f"train problem {convergence_metric} {yhat} {loss_total} {loss_mse}")
 
     return convergence_metric, yhat, loss_total, loss_mse
 
