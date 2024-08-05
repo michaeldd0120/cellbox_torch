@@ -101,6 +101,8 @@ class CellBox(PertBio):
         return torch.tensor(W_mask, dtype=torch.float32)
 
     def forward(self, y0, mu):
+        print('DEBUG: ', y0, mu)
+        raise ValueError(f"model problem {y0} {mu}")
         mu_t = torch.transpose(mu, 0, 1)
         mask = self._get_mask()
         ys = self.ode_solver(y0, mu_t, self.args.dT, self.args.n_T, self._dxdt, self.gradient_zero_from, mask=mask)
