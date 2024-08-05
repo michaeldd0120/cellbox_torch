@@ -148,7 +148,7 @@ def train_substage(model, lr_val, l1_lambda, l2_lambda, n_epoch, n_iter, n_iter_
                     W_mask = torch.tensor(W_mask, dtype=torch.float32)
 
                     my_W = nn.Parameter(W_mask*W, requires_grad=True)
-                    raise ValueError(f"{model.params['W']                       break                  {my_W}")
+                    raise ValueError(f"{model.params['W']}                       break                  {my_W}")
 
                     # END
                     _dXdt = lambda x, t_mu, mask=None: model.params['eps'] * args.envelope_fn(weighted_sum(x, mask) + t_mu) - model.params['alpha'] * x
