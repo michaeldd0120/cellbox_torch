@@ -108,7 +108,24 @@ def train_substage(model, lr_val, l1_lambda, l2_lambda, n_epoch, n_iter, n_iter_
                 model.eval()
                 valid_minibatch = iter(args.iter_monitor)
                 x_valid, y_valid = next(valid_minibatch)
-                raise ValueError(f"train problem {args.pert_form}, {args.n_x}, {args.loss_fn}")
+                # START NEW
+                if args.pert_form == "by u":
+                    prediction = model(torch.zeros((args.n_x, 1), dtype=torch.float32).to(args.device), x.to(args.device))
+                elif args.pert_form == "fix x":
+                    prediction = model(x.T.to(args.device), x.to(args.device))
+                convergence_metric, yhat = prediction
+                raise ValueError(f"AHHHHH:  {convergence_metric}  {yhat}") 
+                for param in model.named_parameters():
+                    if param[0] == "params.W":
+                        param_mat = param[1]
+                        break
+            
+                if args.weight_loss == "expr":
+                    loss_total, loss_mse = args.loss_fn(y.to(args.device), yhat, param_mat, l1=args.l1_lambda, l2=args.l2_lambda, weight=y.to(args.device))
+                else:
+                    loss_total, loss_mse = args.loss_fn(y.to(args.device), yhat, param_mat, l1=args.l1_lambda, l2=args.l2_lambda)
+
+                # END NEW
                 convergence_metric, yhat, loss_valid_i, loss_valid_mse_i = _forward_pass(model, x_valid, y_valid, args)
                 
 
