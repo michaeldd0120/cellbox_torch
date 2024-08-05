@@ -140,7 +140,7 @@ def train_substage(model, lr_val, l1_lambda, l2_lambda, n_epoch, n_iter, n_iter_
                         else: return torch.matmul(model.params['W'], x)
                     w_sum = weighted_sum(x, mask)
                     matm = model.params['W']*mask
-                    raise ValueError(f"{matm}")
+                    raise ValueError(f"{model.params['W']}")
                     _dXdt = lambda x, t_mu, mask=None: model.params['eps'] * args.envelope_fn(weighted_sum(x, mask) + t_mu) - model.params['alpha'] * x
                     dxdt_current = _dXdt(x, t_mu, mask)
                     raise ValueError(f"{dxdt_current}")
