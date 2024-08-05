@@ -118,8 +118,8 @@ def train_substage(model, lr_val, l1_lambda, l2_lambda, n_epoch, n_iter, n_iter_
                 
                 mu_t = torch.transpose(mu, 0, 1)
                 mask = model._get_mask()
+                raise ValueError(f"{mu_t}  {mask}")
                 ys = model.ode_solver(y0, mu_t, model.args.dT, model.args.n_T, model._dxdt, model.gradient_zero_from, mask=mask)
-                raise ValueError(f"ys: {ys}")
                 # [n_T, n_x, batch_size]
                 ys = ys[-model.args.ode_last_steps:]
                 # [n_iter_tail, n_x, batch_size]
