@@ -124,6 +124,7 @@ def train_substage(model, lr_val, l1_lambda, l2_lambda, n_epoch, n_iter, n_iter_
                 xs = []
                 n_x = t_mu.shape[0]
                 n_activity_nodes = n_x if n_activity_nodes is None else n_activity_nodes
+                raise ValueError(f"{n_activity_nodes}")
                 #dxdt_mask = tf.pad(tf.ones((n_activity_nodes, 1)), [[0, n_x - n_activity_nodes], [0, 0]])  # Add 0 rows to the end of the matrix
                 dxdt_mask = nn.functional.pad(
                     torch.ones((n_activity_nodes, 1)), 
@@ -136,6 +137,7 @@ def train_substage(model, lr_val, l1_lambda, l2_lambda, n_epoch, n_iter, n_iter_
                     xs.append(x)
                 xs = torch.stack(xs, dim=0)
                 raise ValueError(f"{xs}")
+
                 
                 # [n_T, n_x, batch_size]
                 ys = ys[-model.args.ode_last_steps:]
