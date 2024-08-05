@@ -106,8 +106,9 @@ def train_substage(model, lr_val, l1_lambda, l2_lambda, n_epoch, n_iter, n_iter_
 
             # Record training
             with torch.no_grad():
-                model.eval()
                 raise ValueError(f"{model.params['W']}")
+                model.eval()
+                
                 valid_minibatch = iter(args.iter_monitor)
                 x_valid, y_valid = next(valid_minibatch)
                 # START NEW
