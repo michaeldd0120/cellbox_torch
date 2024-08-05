@@ -109,6 +109,8 @@ def train_substage(model, lr_val, l1_lambda, l2_lambda, n_epoch, n_iter, n_iter_
                 valid_minibatch = iter(args.iter_monitor)
                 x_valid, y_valid = next(valid_minibatch)
                 # START NEW
+                x = x_valid
+                y = y_valid
                 if args.pert_form == "by u":
                     prediction = model(torch.zeros((args.n_x, 1), dtype=torch.float32).to(args.device), x.to(args.device))
                 elif args.pert_form == "fix x":
