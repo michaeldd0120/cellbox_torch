@@ -101,8 +101,6 @@ class CellBox(PertBio):
         return torch.tensor(W_mask, dtype=torch.float32)
 
     def forward(self, y0, mu):
-        print('DEBUG: ', y0, mu)
-        raise ValueError(f"model problem {y0} {mu}")
         mu_t = torch.transpose(mu, 0, 1)
         mask = self._get_mask()
         ys = self.ode_solver(y0, mu_t, self.args.dT, self.args.n_T, self._dxdt, self.gradient_zero_from, mask=mask)
@@ -113,6 +111,7 @@ class CellBox(PertBio):
         mean = torch.mean(ys, dim=0)
         sd = torch.std(ys, dim=0)
         yhat = torch.transpose(ys[-1], 0, 1)
+        raise ValueError(f"model problem {yhat}")
         dxdt = self._dxdt(ys[-1], mu_t)
         # [n_x, batch_size] for last ODE step
         convergence_metric = torch.cat([mean, sd, dxdt], dim=0)
