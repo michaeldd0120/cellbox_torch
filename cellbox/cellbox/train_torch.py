@@ -109,63 +109,63 @@ def train_substage(model, lr_val, l1_lambda, l2_lambda, n_epoch, n_iter, n_iter_
                 valid_minibatch = iter(args.iter_monitor)
                 x_valid, y_valid = next(valid_minibatch)
                 # START NEW
-                x = x_valid
-                y = y_valid
-                # prediction = model(torch.zeros((args.n_x, 1), dtype=torch.float32).to(args.device), x.to(args.device))
+                # x = x_valid
+                # y = y_valid
+                # # prediction = model(torch.zeros((args.n_x, 1), dtype=torch.float32).to(args.device), x.to(args.device))
 
-                y0 = torch.zeros((args.n_x, 1), dtype=torch.float32).to(args.device)
-                mu = x.to(args.device)
+                # y0 = torch.zeros((args.n_x, 1), dtype=torch.float32).to(args.device)
+                # mu = x.to(args.device)
                 
-                mu_t = torch.transpose(mu, 0, 1)
-                mask = model._get_mask()
-                # ys = model.ode_solver(y0, mu_t, model.args.dT, model.args.n_T, model._dxdt, model.gradient_zero_from, mask=mask)
+                # mu_t = torch.transpose(mu, 0, 1)
+                # mask = model._get_mask()
+                # # ys = model.ode_solver(y0, mu_t, model.args.dT, model.args.n_T, model._dxdt, model.gradient_zero_from, mask=mask)
                 
-                x, t_mu, dT, n_T, _dXdt, n_activity_nodes, mask = y0, mu_t, model.args.dT, model.args.n_T, model._dxdt, 124, mask
+                # x, t_mu, dT, n_T, _dXdt, n_activity_nodes, mask = y0, mu_t, model.args.dT, model.args.n_T, model._dxdt, 124, mask
                 
-                xs = []
-                n_x = t_mu.shape[0]
-                n_activity_nodes = n_x if n_activity_nodes is None else n_activity_nodes
+                # xs = []
+                # n_x = t_mu.shape[0]
+                # n_activity_nodes = n_x if n_activity_nodes is None else n_activity_nodes
                 
-                #dxdt_mask = tf.pad(tf.ones((n_activity_nodes, 1)), [[0, n_x - n_activity_nodes], [0, 0]])  # Add 0 rows to the end of the matrix
-                dxdt_mask = nn.functional.pad(
-                    torch.ones((n_activity_nodes, 1)), 
-                    (0, 0, 0, n_x - n_activity_nodes)
-                ).to(x.device)
+                # #dxdt_mask = tf.pad(tf.ones((n_activity_nodes, 1)), [[0, n_x - n_activity_nodes], [0, 0]])  # Add 0 rows to the end of the matrix
+                # dxdt_mask = nn.functional.pad(
+                #     torch.ones((n_activity_nodes, 1)), 
+                #     (0, 0, 0, n_x - n_activity_nodes)
+                # ).to(x.device)
                 
-                for _ in range(n_T):
-                    dxdt_current = _dXdt(x, t_mu, mask)
-                    dxdt_next = _dXdt(x + dT * dxdt_current, t_mu, mask)
-                    raise ValueError(f"{dxdt_current}    {dxdt_next}")
-                    x = x + dT * 0.5 * (dxdt_current + dxdt_next) * dxdt_mask
-                    xs.append(x)
-                xs = torch.stack(xs, dim=0)
-                raise ValueError(f"{xs}")
-
-                
-                # [n_T, n_x, batch_size]
-                ys = ys[-model.args.ode_last_steps:]
-                # [n_iter_tail, n_x, batch_size]
-                #self.mask()
-                mean = torch.mean(ys, dim=0)
-                sd = torch.std(ys, dim=0)
-                yhat = torch.transpose(ys[-1], 0, 1)
-                dxdt = model._dxdt(ys[-1], mu_t)
-                # [n_x, batch_size] for last ODE step
-                convergence_metric = torch.cat([mean, sd, dxdt], dim=0)
+                # for _ in range(n_T):
+                #     dxdt_current = _dXdt(x, t_mu, mask)
+                #     dxdt_next = _dXdt(x + dT * dxdt_current, t_mu, mask)
+                #     raise ValueError(f"{dxdt_current}    {dxdt_next}")
+                #     x = x + dT * 0.5 * (dxdt_current + dxdt_next) * dxdt_mask
+                #     xs.append(x)
+                # xs = torch.stack(xs, dim=0)
+                # raise ValueError(f"{xs}")
 
                 
+                # # [n_T, n_x, batch_size]
+                # ys = ys[-model.args.ode_last_steps:]
+                # # [n_iter_tail, n_x, batch_size]
+                # #self.mask()
+                # mean = torch.mean(ys, dim=0)
+                # sd = torch.std(ys, dim=0)
+                # yhat = torch.transpose(ys[-1], 0, 1)
+                # dxdt = model._dxdt(ys[-1], mu_t)
+                # # [n_x, batch_size] for last ODE step
+                # convergence_metric = torch.cat([mean, sd, dxdt], dim=0)
 
-                convergence_metric, yhat = prediction
-                raise ValueError(f"AHHHHH:  {convergence_metric}  {yhat}") 
-                for param in model.named_parameters():
-                    if param[0] == "params.W":
-                        param_mat = param[1]
-                        break
+                
+
+                # convergence_metric, yhat = prediction
+                # raise ValueError(f"AHHHHH:  {convergence_metric}  {yhat}") 
+                # for param in model.named_parameters():
+                #     if param[0] == "params.W":
+                #         param_mat = param[1]
+                #         break
             
-                if args.weight_loss == "expr":
-                    loss_total, loss_mse = args.loss_fn(y.to(args.device), yhat, param_mat, l1=args.l1_lambda, l2=args.l2_lambda, weight=y.to(args.device))
-                else:
-                    loss_total, loss_mse = args.loss_fn(y.to(args.device), yhat, param_mat, l1=args.l1_lambda, l2=args.l2_lambda)
+                # if args.weight_loss == "expr":
+                #     loss_total, loss_mse = args.loss_fn(y.to(args.device), yhat, param_mat, l1=args.l1_lambda, l2=args.l2_lambda, weight=y.to(args.device))
+                # else:
+                #     loss_total, loss_mse = args.loss_fn(y.to(args.device), yhat, param_mat, l1=args.l1_lambda, l2=args.l2_lambda)
 
                 # END NEW
                 convergence_metric, yhat, loss_valid_i, loss_valid_mse_i = _forward_pass(model, x_valid, y_valid, args)
