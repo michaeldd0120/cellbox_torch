@@ -69,7 +69,7 @@ def get_ode_solver(args):
     raise Exception("Illegal ODE solver. Use [heun, euler, rk4, midpoint]")
 
 
-def heun_solver(x, t_mu, dT, n_T, _dXdt, n_activity_nodes=None, mask=None):
+def heun_solver(x, t_mu, dT, n_T, _dXdt, n_activity_nodes, mask=None):
     """Heun's ODE solver"""
     xs = []
     n_x = t_mu.shape[0]
