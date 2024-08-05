@@ -102,8 +102,9 @@ def train_substage(model, lr_val, l1_lambda, l2_lambda, n_epoch, n_iter, n_iter_
             convergence_metric, yhat, loss_train_i, loss_train_mse_i = _forward_pass(model, x_train, y_train, args)
             
             loss_train_i.backward()
-            args.optimizer.step()
             raise ValueError(f"{model.params['W']}")
+            args.optimizer.step()
+            
             # Record training
             with torch.no_grad():
                 
