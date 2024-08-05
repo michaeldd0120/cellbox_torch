@@ -102,6 +102,10 @@ def train_substage(model, lr_val, l1_lambda, l2_lambda, n_epoch, n_iter, n_iter_
             convergence_metric, yhat, loss_train_i, loss_train_mse_i = _forward_pass(model, x_train, y_train, args)
             
             loss_train_i.backward()
+            for name, param in model.named_parameters():
+            if param.grad is not None:
+                if torch.isnan(param.grad).any():
+                    raise ValueError("AHHHHHHHHHHHHHHHHHH")
             args.optimizer.step()
             raise ValueError(f"{model.params['W']},                  bang bang           {torch.isnan(model.params['W']).sum().item()}")
             # Record training
