@@ -6,7 +6,7 @@
   "pert_file": "data/pert.csv",
   "expr_file": "data/expr.csv",
   "node_index_file": "data/node_Index.csv",
-  "n_protein_nodes": 123,
+  "n_protein_nodes": 103,
   "n_activity_nodes": 123,
   "n_x" : 125,
   "trainset_ratio": 0.7,
