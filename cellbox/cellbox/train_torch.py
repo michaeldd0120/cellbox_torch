@@ -138,9 +138,15 @@ def train_substage(model, lr_val, l1_lambda, l2_lambda, n_epoch, n_iter, n_iter_
                     def weighted_sum(x, mask=None):
                         if mask is not None: return torch.matmul(model.params['W']*mask.to(x.device), x)
                         else: return torch.matmul(model.params['W'], x)
-                    w_sum = weighted_sum(x, mask)
-                    matm = model.params['W']*mask
-                    raise ValueError(f"{model.params['W']}")
+                    #START
+                    W_mask = (1.0 - np.diag(np.ones([self.n_x])))
+                    W_mask[self.args.n_activity_nodes:, :] = np.zeros([self.n_x - self.args.n_activity_nodes, self.n_x])
+                    W_mask[:, self.args.n_protein_nodes:self.args.n_activity_nodes] = np.zeros([self.n_x, self.args.n_activity_nodes - self.args.n_protein_nodes])
+                    W_mask[self.args.n_protein_nodes:self.args.n_activity_nodes, self.args.n_activity_nodes:] = np.zeros([self.args.n_activity_nodes - self.args.n_protein_nodes,
+                                                                                            self.n_x - self.args.n_activity_nodes])
+                    raise ValueError(f"{W_mask}")
+
+                    # END
                     _dXdt = lambda x, t_mu, mask=None: model.params['eps'] * args.envelope_fn(weighted_sum(x, mask) + t_mu) - model.params['alpha'] * x
                     dxdt_current = _dXdt(x, t_mu, mask)
                     raise ValueError(f"{dxdt_current}")
