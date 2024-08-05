@@ -118,9 +118,25 @@ def train_substage(model, lr_val, l1_lambda, l2_lambda, n_epoch, n_iter, n_iter_
                 
                 mu_t = torch.transpose(mu, 0, 1)
                 mask = model._get_mask()
-                ys = model.ode_solver(y0, mu_t, model.args.dT, model.args.n_T, model._dxdt, model.n_activity_nodes, mask=mask)
-
-                raise ValueError(f"{ys}")
+                # ys = model.ode_solver(y0, mu_t, model.args.dT, model.args.n_T, model._dxdt, model.gradient_zero_from, mask=mask)
+                
+                x, t_mu, dT, n_T, _dXdt, n_activity_nodes, mask = y0, mu_t, model.args.dT, model.args.n_T, model._dxdt, model.gradient_zero_from, mask
+                xs = []
+                n_x = t_mu.shape[0]
+                n_activity_nodes = n_x if n_activity_nodes is None else n_activity_nodes
+                #dxdt_mask = tf.pad(tf.ones((n_activity_nodes, 1)), [[0, n_x - n_activity_nodes], [0, 0]])  # Add 0 rows to the end of the matrix
+                dxdt_mask = nn.functional.pad(
+                    torch.ones((n_activity_nodes, 1)), 
+                    (0, 0, 0, n_x - n_activity_nodes)
+                ).to(x.device)
+                for _ in range(n_T):
+                    dxdt_current = _dXdt(x, t_mu, mask)
+                    dxdt_next = _dXdt(x + dT * dxdt_current, t_mu, mask)
+                    x = x + dT * 0.5 * (dxdt_current + dxdt_next) * dxdt_mask
+                    xs.append(x)
+                xs = torch.stack(xs, dim=0)
+                raise ValueError(f"{xs}")
+                
                 # [n_T, n_x, batch_size]
                 ys = ys[-model.args.ode_last_steps:]
                 # [n_iter_tail, n_x, batch_size]
