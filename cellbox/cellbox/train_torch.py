@@ -139,12 +139,13 @@ def train_substage(model, lr_val, l1_lambda, l2_lambda, n_epoch, n_iter, n_iter_
                         if mask is not None: return torch.matmul(model.params['W']*mask.to(x.device), x)
                         else: return torch.matmul(model.params['W'], x)
                     #START
+                    W = torch.normal(mean=0.01, std=1.0, size=(n_x, n_x), dtype=torch.float32)
                     W_mask = (1.0 - np.diag(np.ones([model.n_x])))
                     W_mask[model.args.n_activity_nodes:, :] = np.zeros([model.n_x - model.args.n_activity_nodes, model.n_x])
                     W_mask[:, model.args.n_protein_nodes:model.args.n_activity_nodes] = np.zeros([model.n_x, model.args.n_activity_nodes - model.args.n_protein_nodes])
                     W_mask[model.args.n_protein_nodes:model.args.n_activity_nodes, model.args.n_activity_nodes:] = np.zeros([model.args.n_activity_nodes - model.args.n_protein_nodes,
                                                                                             model.n_x - model.args.n_activity_nodes])
-                    raise ValueError(f"{W_mask}")
+                    raise ValueError(f"{W_mask*W}")
 
                     # END
                     _dXdt = lambda x, t_mu, mask=None: model.params['eps'] * args.envelope_fn(weighted_sum(x, mask) + t_mu) - model.params['alpha'] * x
