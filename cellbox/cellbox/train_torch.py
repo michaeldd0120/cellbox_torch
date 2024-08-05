@@ -120,7 +120,7 @@ def train_substage(model, lr_val, l1_lambda, l2_lambda, n_epoch, n_iter, n_iter_
                 mask = model._get_mask()
                 # ys = model.ode_solver(y0, mu_t, model.args.dT, model.args.n_T, model._dxdt, model.gradient_zero_from, mask=mask)
                 
-                x, t_mu, dT, n_T, _dXdt, n_activity_nodes, mask = y0, mu_t, model.args.dT, model.args.n_T, model._dxdt, model.gradient_zero_from, mask
+                x, t_mu, dT, n_T, _dXdt, n_activity_nodes, mask = y0, mu_t, model.args.dT, model.args.n_T, model._dxdt, 123, mask
                 
                 xs = []
                 n_x = t_mu.shape[0]
