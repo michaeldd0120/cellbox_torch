@@ -136,9 +136,9 @@ def train_substage(model, lr_val, l1_lambda, l2_lambda, n_epoch, n_iter, n_iter_
                     # dxdt_current = _dXdt(x, t_mu, mask)
                     # START
                     def weighted_sum(x, mask=None):
-                        if mask is not None: return torch.matmul(params['W']*mask.to(x.device), x)
-                        else: return torch.matmul(params['W'], x)
-                    _dXdt = lambda x, t_mu, mask=None: params['eps'] * args.envelope_fn(weighted_sum(x, mask) + t_mu) - params['alpha'] * x
+                        if mask is not None: return torch.matmul(model.params['W']*mask.to(x.device), x)
+                        else: return torch.matmul(model.params['W'], x)
+                    _dXdt = lambda x, t_mu, mask=None: model.params['eps'] * args.envelope_fn(weighted_sum(x, mask) + t_mu) - model.params['alpha'] * x
                     dxdt_current = _dXdt(x, t_mu, mask)
                     raise ValueError(f"{dxdt_current}")
 
