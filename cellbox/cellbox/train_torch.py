@@ -30,7 +30,7 @@ def _forward_pass(model, x, y, args):
     convergence_metric, yhat = prediction
 
     for name, param in model.named_parameters():
-        register_hooks(yhat, 'yhat')
+        register_hooks(convergence_metric, 'convergence_metric')
     
     for param in model.named_parameters():
         if param[0] == "params.W":
