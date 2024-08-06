@@ -45,14 +45,33 @@ def _forward_pass(model, x, y, args):
     return convergence_metric, yhat, loss_total, loss_mse
 
 
-def print_grad_fn(tensor, depth=0):
-    if tensor.grad_fn is not None:
-        print(f"{' ' * depth * 2}Depth {depth}: {tensor.grad_fn}")
-        print(tensor.grad_fn.next_functions)
-        for next_tensor, _ in tensor.grad_fn.next_functions:
-            if next_tensor is not None:
-                print_grad_fn(next_tensor, depth + 1)
+def print_gradients_and_fn(name, param):
+    def hook(grad):
+        grad_fn = getattr(param.grad, 'grad_fn', 'None')
+        print(f"Parameter: {name}, Gradient: {grad}, grad_fn: {grad_fn}")
+    return hook
 
+# Define a function to attach hooks to parameters
+def attach_hooks_to_params(model):
+    hooks = []
+    for name, param in model.named_parameters():
+        if param.requires_grad:
+            hook = param.register_hook(print_gradients_and_fn(name, param))
+            hooks.append(hook)
+    return hooks
+
+def inspect_gradients(model):
+    print("Inspecting gradients after backward pass:")
+    for name, param in model.named_parameters():
+        if param.grad is not None:
+            print(f"Parameter: {name}")
+            print(f"Gradient: {param.grad}")
+            if param.grad.grad_fn is not None:
+                print(f"grad_fn: {param.grad.grad_fn}")
+            else:
+                print(f"grad_fn: None")
+        else:
+            print(f"Parameter: {name} - Gradient: None")
 
 def train_substage(model, lr_val, l1_lambda, l2_lambda, n_epoch, n_iter, n_iter_buffer, n_iter_patience, args):
     """
@@ -107,15 +126,15 @@ def train_substage(model, lr_val, l1_lambda, l2_lambda, n_epoch, n_iter, n_iter_
                 break
             
             # Do one forward pass
+            hooks = attach_hooks_to_params(model)
             t0 = time.perf_counter()
             model.train()
             args.optimizer.zero_grad()
             convergence_metric, yhat, loss_train_i, loss_train_mse_i = _forward_pass(model, x_train, y_train, args)
             print(loss_train_i)
             loss_train_i.backward()
-            print_grad_fn(loss_train_i)
-            # for name, param in model.named_parameters():
-            #         print(name, param, param.grad)
+            inspect_gradients(model)
+            
 
             def check_nan_gradients(model):
                 nan_count = 0
