@@ -48,9 +48,10 @@ def _forward_pass(model, x, y, args):
 def print_grad_fn(tensor, depth=0):
     if tensor.grad_fn is not None:
         print(f"{' ' * depth * 2}Depth {depth}: {tensor.grad_fn}")
-        for next_tensor in tensor.grad_fn.next_functions:
-            if next_tensor[0] is not None:
-                print_grad_fn(next_tensor[0], depth + 1)
+        print(tensor.grad_fn.next_functions)
+        for next_tensor, _ in tensor.grad_fn.next_functions:
+            if next_tensor is not None:
+                print_grad_fn(next_tensor, depth + 1)
 
 
 def train_substage(model, lr_val, l1_lambda, l2_lambda, n_epoch, n_iter, n_iter_buffer, n_iter_patience, args):
