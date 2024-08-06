@@ -112,29 +112,30 @@ class CellBox(PertBio):
         
         def register_hook(tensor, name):
             tensor.register_hook(print_intermediate_gradients(name, tensor))
-        print("BANG", mu)
+
+        mu.requires_grad_(True)
         mu_t = torch.transpose(mu, 0, 1).requires_grad_(True)
-        print("BUNG", mu_t)
         mask = self._get_mask().requires_grad_(True)
         ys = self.ode_solver(y0, mu_t, self.args.dT, self.args.n_T, self._dxdt, self.gradient_zero_from, mask=mask)
         # [n_T, n_x, batch_size]
-        ys = ys[-self.args.ode_last_steps:]
+        ys = ys[-self.args.ode_last_steps:].requires_grad_(True)
         # [n_iter_tail, n_x, batch_size]
         #self.mask()
-        mean = torch.mean(ys, dim=0)
-        sd = torch.std(ys, dim=0)
-        yhat = torch.transpose(ys[-1], 0, 1)
-        dxdt = self._dxdt(ys[-1], mu_t)
+        mean = torch.mean(ys, dim=0).requires_grad_(True)
+        sd = torch.std(ys, dim=0).requires_grad_(True)
+        yhat = torch.transpose(ys[-1], 0, 1).requires_grad_(True)
+        dxdt = self._dxdt(ys[-1], mu_t).requires_grad_(True)
         # [n_x, batch_size] for last ODE step
-        convergence_metric = torch.cat([mean, sd, dxdt], dim=0)
+        convergence_metric = torch.cat([mean, sd, dxdt], dim=0).requires_grad_(True)
+        register_hook(mu_t, 'mu_t')
         register_hook(mu_t, 'mu_t')
         register_hook(mask, 'mask')
-        # register_hook(ys, 'ys')
-        # register_hook(mean, 'mean')
-        # register_hook(sd, 'sd')
-        # register_hook(yhat, 'yhat')
-        # register_hook(dxdt, 'dxdt')
-        # register_hook(convergence_metric, 'convergence_metric')
+        register_hook(ys, 'ys')
+        register_hook(mean, 'mean')
+        register_hook(sd, 'sd')
+        register_hook(yhat, 'yhat')
+        register_hook(dxdt, 'dxdt')
+        register_hook(convergence_metric, 'convergence_metric')
 
         
         return convergence_metric, yhat
