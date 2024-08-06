@@ -107,8 +107,12 @@ def train_substage(model, lr_val, l1_lambda, l2_lambda, n_epoch, n_iter, n_iter_
             
             
             # Do one forward pass
+            for name, param in model.named_parameters():
+                register_hooks(param, name)
             t0 = time.perf_counter()
             model.train()
+            for name, param in model.named_parameters():
+                register_hooks(param, name)
             args.optimizer.zero_grad()
             convergence_metric, yhat, loss_train_i, loss_train_mse_i = _forward_pass(model, x_train, y_train, args)
 
