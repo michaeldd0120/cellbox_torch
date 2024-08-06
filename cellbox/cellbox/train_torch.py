@@ -102,10 +102,9 @@ def train_substage(model, lr_val, l1_lambda, l2_lambda, n_epoch, n_iter, n_iter_
             
             args.optimizer.zero_grad()
             convergence_metric, yhat, loss_train_i, loss_train_mse_i = _forward_pass(model, x_train, y_train, args)
-            for name, param in model.named_parameters():
-                            print(name, param, param.grad)
             loss_train_i.backward()
-            
+            for name, param in model.named_parameters():
+                    print(name, param, param.grad)
 
             def check_nan_gradients(model):
                 nan_count = 0
