@@ -46,15 +46,6 @@ def _forward_pass(model, x, y, args):
 
     return convergence_metric, yhat, loss_total, loss_mse
 
-def register_hooks(tensor, name):
-        def hook_fn(grad):
-            print(f"Gradient for {name}: {grad}")
-            if torch.isnan(grad).any():                    
-                print(f"NaN detected in gradient for {name}")
-            
-        tensor.register_hook(hook_fn)
-
-
 def train_substage(model, lr_val, l1_lambda, l2_lambda, n_epoch, n_iter, n_iter_buffer, n_iter_patience, args):
     """
     Training function that does one stage of training. The stage training can be repeated and modified to give better
@@ -71,8 +62,7 @@ def train_substage(model, lr_val, l1_lambda, l2_lambda, n_epoch, n_iter, n_iter_
         n_iter_patience (int): training loss tolerance
         args: Args or configs
     """
-    for name, param in model.named_parameters():
-        print(name, param, param.grad)
+    
     stages = glob.glob("*best*.csv")
     try:
         substage_i = 1 + max([int(stage[0]) for stage in stages])
@@ -107,10 +97,9 @@ def train_substage(model, lr_val, l1_lambda, l2_lambda, n_epoch, n_iter, n_iter_
 
             if idx_iter > n_iter or n_unchanged > n_iter_patience:
                 break
-                
-            # Do one forward pass
             for name, param in model.named_parameters():
-                register_hooks(param, name)
+                print(name, param, param.grad)
+            # Do one forward pass
             t0 = time.perf_counter()
             model.train()
             args.optimizer.zero_grad()
