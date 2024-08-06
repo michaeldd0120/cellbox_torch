@@ -90,6 +90,6 @@ if __name__ == '__main__':
         model = cellbox.model_torch.factory(args)
         model, args = model
         for name, param in model.named_parameters():
-            print(name, param)
+            print(name, param, param.grad)
         raise ValueError("STOP")
         cellbox.train_torch.train_model(model, args)
