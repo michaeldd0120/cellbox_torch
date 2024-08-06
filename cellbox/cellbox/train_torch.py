@@ -30,8 +30,6 @@ def _forward_pass(model, x, y, args):
         prediction = model(x.T.to(args.device), x.to(args.device))
     convergence_metric, yhat = prediction
 
-    for name, param in model.named_parameters():
-        register_hooks(convergence_metric, 'convergence_metric')
     
     for param in model.named_parameters():
         if param[0] == "params.W":
@@ -97,11 +95,12 @@ def train_substage(model, lr_val, l1_lambda, l2_lambda, n_epoch, n_iter, n_iter_
 
             if idx_iter > n_iter or n_unchanged > n_iter_patience:
                 break
-            for name, param in model.named_parameters():
-                print(name, param, param.grad)
+            
             # Do one forward pass
             t0 = time.perf_counter()
             model.train()
+            for name, param in model.named_parameters():
+                print(name, param, param.grad)
             args.optimizer.zero_grad()
             convergence_metric, yhat, loss_train_i, loss_train_mse_i = _forward_pass(model, x_train, y_train, args)
 
