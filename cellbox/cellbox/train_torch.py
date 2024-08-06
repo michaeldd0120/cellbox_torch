@@ -133,6 +133,15 @@ def train_substage(model, lr_val, l1_lambda, l2_lambda, n_epoch, n_iter, n_iter_
             convergence_metric, yhat, loss_train_i, loss_train_mse_i = _forward_pass(model, x_train, y_train, args)
             print(loss_train_i)
             loss_train_i.backward()
+            def traverse_grad_fn(grad_fn):
+                if grad_fn is None:
+                    return
+                print(grad_fn)
+                for next_fn, _ in grad_fn.next_functions:
+                    traverse_grad_fn(next_fn)
+            
+            print("Backpropagation Functions:")
+            traverse_grad_fn(loss.grad_fn)
             # inspect_gradients(model)
             
 
