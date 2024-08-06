@@ -107,6 +107,7 @@ class CellBox(PertBio):
             def hook(grad):
                 print(f"Intermediate tensor: {name}")
                 print(f"Gradient: {grad}")
+                print(f"Func: {grad.grad_fn}")
             return hook
         
         def register_hook(tensor, name):
