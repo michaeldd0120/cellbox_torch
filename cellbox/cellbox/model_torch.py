@@ -100,6 +100,8 @@ class CellBox(PertBio):
         #self.params['W'] = self.params["W"] * (torch.tensor(W_mask, dtype=torch.float32))
         return torch.tensor(W_mask, dtype=torch.float32)
 
+    
+    
     def forward(self, y0, mu):
         mu_t = torch.transpose(mu, 0, 1)
         mask = self._get_mask()
