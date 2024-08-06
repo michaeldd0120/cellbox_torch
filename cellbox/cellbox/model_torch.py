@@ -100,7 +100,14 @@ class CellBox(PertBio):
         #self.params['W'] = self.params["W"] * (torch.tensor(W_mask, dtype=torch.float32))
         return torch.tensor(W_mask, dtype=torch.float32)
 
+    def print_intermediate_gradients(name, tensor):
+        def hook(grad):
+            print(f"Intermediate tensor: {name}")
+            print(f"Gradient: {grad}")
+        return hook
     
+    def register_hook(tensor, name):
+        tensor.register_hook(print_intermediate_gradients(name, tensor))
     
     def forward(self, y0, mu):
         mu_t = torch.transpose(mu, 0, 1)
