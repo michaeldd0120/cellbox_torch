@@ -78,6 +78,7 @@ class CellBox(PertBio):
             self.params['psi'] = torch.nn.functional.softplus(psi)
 
         if self.args.pert_form == 'by u':
+            raise ValueError("AH")
             self.gradient_zero_from = None
         elif self.args.pert_form == 'fix x':  # fix level of node x (here y) by input perturbation u (here x)
             self.gradient_zero_from = self.args.n_activity_nodes
