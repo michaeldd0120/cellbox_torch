@@ -88,8 +88,4 @@ if __name__ == '__main__':
         args.sub_stages = stage['sub_stages']
         args.n_T = stage['nT']
         model = cellbox.model_torch.factory(args)
-        model, args = model
-        for name, param in model.named_parameters():
-            print(name, param, param.grad)
-        raise ValueError("STOP")
         cellbox.train_torch.train_model(model, args)
