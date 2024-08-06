@@ -72,6 +72,7 @@ if __name__ == '__main__':
     cfg = cellbox.config.Config(master_args.experiment_config_path)
     cfg.ckpt_path_full = os.path.join('./', cfg.ckpt_name)
     cfg.weights = master_args.weights
+    print(cfg.weights)
     md5 = cellbox.utils_torch.md5(cfg)
     cfg.drug_index = master_args.drug_index if hasattr(master_args, "drug_index") else None
     cfg.seed = working_index + cfg.seed if hasattr(cfg, "seed") else working_index + 1000
@@ -88,4 +89,7 @@ if __name__ == '__main__':
         args.sub_stages = stage['sub_stages']
         args.n_T = stage['nT']
         model = cellbox.model_torch.factory(args)
+        for name, param in model.named_parameters():
+            print(name, param)
+        raise ValueError("STOP")
         cellbox.train_torch.train_model(model, args)
