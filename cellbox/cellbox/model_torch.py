@@ -103,7 +103,9 @@ class CellBox(PertBio):
     def forward(self, y0, mu):
         mu_t = torch.transpose(mu, 0, 1)
         mask = self._get_mask()
+        print(mask)
         ys = self.ode_solver(y0, mu_t, self.args.dT, self.args.n_T, self._dxdt, self.gradient_zero_from, mask=mask)
+        print(ys)
         # [n_T, n_x, batch_size]
         ys = ys[-self.args.ode_last_steps:]
         # [n_iter_tail, n_x, batch_size]
