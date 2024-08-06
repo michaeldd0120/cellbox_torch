@@ -114,7 +114,6 @@ class CellBox(PertBio):
         dxdt = self._dxdt(ys[-1], mu_t)
         # [n_x, batch_size] for last ODE step
         convergence_metric = torch.cat([mean, sd, dxdt], dim=0)
-        print(convergence_metric, yhat)
         return convergence_metric, yhat
     
 
