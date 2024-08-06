@@ -29,13 +29,15 @@ def _forward_pass(model, x, y, args):
         prediction = model(x.T.to(args.device), x.to(args.device))
     convergence_metric, yhat = prediction
 
-    for name, param in model.named_paramters():
+    for name, param in model.named_parameters():
         register_hooks(param, name)
     
     for param in model.named_parameters():
         if param[0] == "params.W":
             param_mat = param[1]
             break
+    for name, param in model.named_parameters():
+        register_hooks(param, name)
 
     if args.weight_loss == "expr":
         loss_total, loss_mse = args.loss_fn(y.to(args.device), yhat, param_mat, l1=args.l1_lambda, l2=args.l2_lambda, weight=y.to(args.device))
