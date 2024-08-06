@@ -36,8 +36,6 @@ def _forward_pass(model, x, y, args):
         if param[0] == "params.W":
             param_mat = param[1]
             break
-    for name, param in model.named_parameters():
-        register_hooks(param, name)
 
     if args.weight_loss == "expr":
         loss_total, loss_mse = args.loss_fn(y.to(args.device), yhat, param_mat, l1=args.l1_lambda, l2=args.l2_lambda, weight=y.to(args.device))
@@ -118,15 +116,9 @@ def train_substage(model, lr_val, l1_lambda, l2_lambda, n_epoch, n_iter, n_iter_
                 register_hooks(param, name)
             t0 = time.perf_counter()
             model.train()
-            for name, param in model.named_parameters():
-                register_hooks(param, name)
             args.optimizer.zero_grad()
             convergence_metric, yhat, loss_train_i, loss_train_mse_i = _forward_pass(model, x_train, y_train, args)
 
-
-            for name, param in model.named_parameters():
-                register_hooks(param, name)
-            
             loss_train_i.backward()
             
 
