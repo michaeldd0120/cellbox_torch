@@ -100,7 +100,7 @@ def train_substage(model, lr_val, l1_lambda, l2_lambda, n_epoch, n_iter, n_iter_
             model.train()
             args.optimizer.zero_grad()
             convergence_metric, yhat, loss_train_i, loss_train_mse_i = _forward_pass(model, x_train, y_train, args)
-            
+            raise ValueError(f"{loss_train_i}")
             loss_train_i.backward()
 
 
@@ -124,94 +124,11 @@ def train_substage(model, lr_val, l1_lambda, l2_lambda, n_epoch, n_iter, n_iter_
             args.optimizer.step()
             raise ValueError(f"{model.params['W']},                  bang bang           {torch.isnan(model.params['W']).sum().item()}")
             # Record training
+            
             with torch.no_grad():
-                
                 model.eval()
-                
                 valid_minibatch = iter(args.iter_monitor)
                 x_valid, y_valid = next(valid_minibatch)
-                # START NEW
-                x = x_valid
-                y = y_valid
-                # prediction = model(torch.zeros((args.n_x, 1), dtype=torch.float32).to(args.device), x.to(args.device))
-
-                y0 = torch.zeros((args.n_x, 1), dtype=torch.float32).to(args.device)
-                mu = x.to(args.device)
-                
-                mu_t = torch.transpose(mu, 0, 1)
-                mask = model._get_mask()
-                # ys = model.ode_solver(y0, mu_t, model.args.dT, model.args.n_T, model._dxdt, model.gradient_zero_from, mask=mask)
-                
-                x, t_mu, dT, n_T, _dXdt, n_activity_nodes, mask = y0, mu_t, model.args.dT, model.args.n_T, model._dxdt, 124, mask
-                
-                xs = []
-                n_x = t_mu.shape[0]
-                n_activity_nodes = n_x if n_activity_nodes is None else n_activity_nodes
-                
-                #dxdt_mask = tf.pad(tf.ones((n_activity_nodes, 1)), [[0, n_x - n_activity_nodes], [0, 0]])  # Add 0 rows to the end of the matrix
-                dxdt_mask = nn.functional.pad(
-                    torch.ones((n_activity_nodes, 1)), 
-                    (0, 0, 0, n_x - n_activity_nodes)
-                ).to(x.device)
-                
-                for _ in range(n_T):
-                    # dxdt_current = _dXdt(x, t_mu, mask)
-                    # START
-                    def weighted_sum(x, mask=None):
-                        if mask is not None: return torch.matmul(model.params['W']*mask.to(x.device), x)
-                        else: return torch.matmul(model.params['W'], x)
-                    #START
-                    W = torch.normal(mean=0.01, std=1.0, size=(n_x, n_x), dtype=torch.float32)
-                    W_mask = (1.0 - np.diag(np.ones([model.n_x])))
-                    W_mask[model.args.n_activity_nodes:, :] = np.zeros([model.n_x - model.args.n_activity_nodes, model.n_x])
-                    W_mask[:, model.args.n_protein_nodes:model.args.n_activity_nodes] = np.zeros([model.n_x, model.args.n_activity_nodes - model.args.n_protein_nodes])
-                    W_mask[model.args.n_protein_nodes:model.args.n_activity_nodes, model.args.n_activity_nodes:] = np.zeros([model.args.n_activity_nodes - model.args.n_protein_nodes,
-                                                                                            model.n_x - model.args.n_activity_nodes])
-                    W_mask = torch.tensor(W_mask, dtype=torch.float32)
-
-                    my_W = nn.Parameter(W_mask*W, requires_grad=True)
-                    raise ValueError(f"{model.params['W']}                       break                  {my_W}")
-
-                    # END
-                    _dXdt = lambda x, t_mu, mask=None: model.params['eps'] * args.envelope_fn(weighted_sum(x, mask) + t_mu) - model.params['alpha'] * x
-                    dxdt_current = _dXdt(x, t_mu, mask)
-                    raise ValueError(f"{dxdt_current}")
-
-                    # END
-                    dxdt_next = _dXdt(x + dT * dxdt_current, t_mu, mask)
-                    raise ValueError(f"{dxdt_current}    {dxdt_next}")
-                    x = x + dT * 0.5 * (dxdt_current + dxdt_next) * dxdt_mask
-                    xs.append(x)
-                xs = torch.stack(xs, dim=0)
-                raise ValueError(f"{xs}")
-
-                
-                # [n_T, n_x, batch_size]
-                ys = ys[-model.args.ode_last_steps:]
-                # [n_iter_tail, n_x, batch_size]
-                #self.mask()
-                mean = torch.mean(ys, dim=0)
-                sd = torch.std(ys, dim=0)
-                yhat = torch.transpose(ys[-1], 0, 1)
-                dxdt = model._dxdt(ys[-1], mu_t)
-                # [n_x, batch_size] for last ODE step
-                convergence_metric = torch.cat([mean, sd, dxdt], dim=0)
-
-                
-
-                convergence_metric, yhat = prediction
-                raise ValueError(f"AHHHHH:  {convergence_metric}  {yhat}") 
-                for param in model.named_parameters():
-                    if param[0] == "params.W":
-                        param_mat = param[1]
-                        break
-            
-                if args.weight_loss == "expr":
-                    loss_total, loss_mse = args.loss_fn(y.to(args.device), yhat, param_mat, l1=args.l1_lambda, l2=args.l2_lambda, weight=y.to(args.device))
-                else:
-                    loss_total, loss_mse = args.loss_fn(y.to(args.device), yhat, param_mat, l1=args.l1_lambda, l2=args.l2_lambda)
-
-                # END NEW
                 convergence_metric, yhat, loss_valid_i, loss_valid_mse_i = _forward_pass(model, x_valid, y_valid, args)
                 
 
