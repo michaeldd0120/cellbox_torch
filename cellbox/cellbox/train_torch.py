@@ -95,14 +95,27 @@ def train_substage(model, lr_val, l1_lambda, l2_lambda, n_epoch, n_iter, n_iter_
             if idx_iter > n_iter or n_unchanged > n_iter_patience:
                 break
 
+           
+            def register_hooks(tensor, name):
+                def hook_fn(grad):
+                    print(f"Gradient for {name}: {grad}")
+                    if torch.isnan(grad).any():
+                        print(f"NaN detected in gradient for {name}")
+            
+                tensor.register_hook(hook_fn)
+            
+            
+            
             # Do one forward pass
             t0 = time.perf_counter()
             model.train()
             args.optimizer.zero_grad()
             convergence_metric, yhat, loss_train_i, loss_train_mse_i = _forward_pass(model, x_train, y_train, args)
+
+
             for name, param in model.named_parameters():
-                if param.grad is not None:
-                    print(f"Initial gradient for {name}: {param.grad}")
+                register_hooks(param, name)
+            
             loss_train_i.backward()
             
 
