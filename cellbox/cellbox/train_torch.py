@@ -88,7 +88,7 @@ def train_substage(model, lr_val, l1_lambda, l2_lambda, n_epoch, n_iter, n_iter_
     )
     hooks = []
     for name, param in model.named_parameters():
-        hook = param.register_hook(lambda grad, name=name: print(f"Parameter: {name}, Gradient: {grad}, Grad_fn: {grad.grad_fn}""))
+        hook = param.register_hook(lambda grad, name=name: print(f"Parameter: {name}, Gradient: {grad}, Grad_fn: {grad.grad_fn}"))
         hooks.append(hook)
         
     for idx_epoch in range(n_epoch):
