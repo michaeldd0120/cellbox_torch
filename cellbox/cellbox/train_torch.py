@@ -45,9 +45,12 @@ def _forward_pass(model, x, y, args):
     return convergence_metric, yhat, loss_total, loss_mse
 
 
-def print_grads(module, grad_input, grad_output):
-    for name, param in model.named_parameters():
-        print(f"Parameter: {name}, Gradient: {param.grad}, Function: {param.grad.grad_fn}")
+def print_grad_fn(tensor, depth=0):
+    if tensor.grad_fn is not None:
+        print(f"{' ' * depth * 2}Depth {depth}: {tensor.grad_fn}")
+        for next_tensor in tensor.grad_fn.next_functions:
+            if next_tensor[0] is not None:
+                print_grad_fn(next_tensor[0], depth + 1)
 
 
 def train_substage(model, lr_val, l1_lambda, l2_lambda, n_epoch, n_iter, n_iter_buffer, n_iter_patience, args):
@@ -85,10 +88,6 @@ def train_substage(model, lr_val, l1_lambda, l2_lambda, n_epoch, n_iter, n_iter_
         model.parameters(),
         lr=args.lr
     )
-    hooks = []
-    for name, param in model.named_parameters():
-        hook = param.register_hook(lambda grad, name=name: print(f"Parameter: {name}, Gradient: {grad}, Grad_fn: {grad.grad_fn}"))
-        hooks.append(hook)
         
     for idx_epoch in range(n_epoch):
 
@@ -111,7 +110,9 @@ def train_substage(model, lr_val, l1_lambda, l2_lambda, n_epoch, n_iter, n_iter_
             model.train()
             args.optimizer.zero_grad()
             convergence_metric, yhat, loss_train_i, loss_train_mse_i = _forward_pass(model, x_train, y_train, args)
+            print(loss_train_i)
             loss_train_i.backward()
+            print_grad_fn(loss_train_i)
             # for name, param in model.named_parameters():
             #         print(name, param, param.grad)
 
