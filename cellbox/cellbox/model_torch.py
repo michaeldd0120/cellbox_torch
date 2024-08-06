@@ -112,7 +112,9 @@ class CellBox(PertBio):
         
         def register_hook(tensor, name):
             tensor.register_hook(print_intermediate_gradients(name, tensor))
+        print("BANG", mu)
         mu_t = torch.transpose(mu, 0, 1).requires_grad_(True)
+        print("BUNG", mu_t)
         mask = self._get_mask().requires_grad_(True)
         ys = self.ode_solver(y0, mu_t, self.args.dT, self.args.n_T, self._dxdt, self.gradient_zero_from, mask=mask)
         # [n_T, n_x, batch_size]
