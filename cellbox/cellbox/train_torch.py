@@ -71,7 +71,8 @@ def train_substage(model, lr_val, l1_lambda, l2_lambda, n_epoch, n_iter, n_iter_
         n_iter_patience (int): training loss tolerance
         args: Args or configs
     """
-
+    for name, param in model.named_parameters():
+        print(name, param, param.grad)
     stages = glob.glob("*best*.csv")
     try:
         substage_i = 1 + max([int(stage[0]) for stage in stages])
@@ -271,8 +272,6 @@ def train_model(model, args):
         n_epoch = substage['n_epoch'] if 'n_epoch' in substage else args.n_epoch
         l1 = substage['l1lambda'] if 'l1lambda' in substage else args.l1lambda if hasattr(args, 'l1lambda') else 0
         l2 = substage['l2lambda'] if 'l2lambda' in substage else args.l2lambda if hasattr(args, 'l2lambda') else 0
-        for name, param in model.named_parameters():
-            print(name, param, param.grad)
         train_substage(model, substage['lr_val'], l1_lambda=l1, l2_lambda=l2, n_epoch=n_epoch,
                        n_iter=n_iter, n_iter_buffer=n_iter_buffer, n_iter_patience=n_iter_patience, args=args)
         
