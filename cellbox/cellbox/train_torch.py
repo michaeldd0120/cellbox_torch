@@ -126,7 +126,7 @@ def train_substage(model, lr_val, l1_lambda, l2_lambda, n_epoch, n_iter, n_iter_
                 break
             
             # Do one forward pass
-            hooks = attach_hooks_to_params(model)
+            # hooks = attach_hooks_to_params(model)
             t0 = time.perf_counter()
             model.train()
             args.optimizer.zero_grad()
