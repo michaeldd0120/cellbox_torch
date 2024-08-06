@@ -100,16 +100,20 @@ class CellBox(PertBio):
         #self.params['W'] = self.params["W"] * (torch.tensor(W_mask, dtype=torch.float32))
         return torch.tensor(W_mask, dtype=torch.float32)
 
-    def print_intermediate_gradients(name, tensor):
-        def hook(grad):
-            print(f"Intermediate tensor: {name}")
-            print(f"Gradient: {grad}")
-        return hook
     
-    def register_hook(tensor, name):
-        tensor.register_hook(print_intermediate_gradients(name, tensor))
     
     def forward(self, y0, mu):
+        def print_intermediate_gradients(name, tensor):
+            def hook(grad):
+                print(f"Intermediate tensor: {name}")
+                print(f"Gradient: {grad}")
+            return hook
+        
+        def register_hook(tensor, name):
+            tensor.register_hook(print_intermediate_gradients(name, tensor))
+        
+        
+        
         mu_t = torch.transpose(mu, 0, 1)
         mask = self._get_mask()
         ys = self.ode_solver(y0, mu_t, self.args.dT, self.args.n_T, self._dxdt, self.gradient_zero_from, mask=mask)
@@ -130,7 +134,7 @@ class CellBox(PertBio):
         register_hook(sd, 'sd')
         register_hook(yhat, 'yhat')
         register_hook(dxdt, 'dxdt')
-        register_hook(convergence_metrix, 'convergence_metrix')
+        register_hook(convergence_metric, 'convergence_metric')
 
         
         return convergence_metric, yhat
