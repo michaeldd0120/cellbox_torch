@@ -15,6 +15,7 @@
   "add_noise_level": 0,
 
   "envelop_form": "tanh",
+  "pert_form": "fix x",
   "dT": 0.1,
   "envelop":0,
   "ode_degree": 1,
