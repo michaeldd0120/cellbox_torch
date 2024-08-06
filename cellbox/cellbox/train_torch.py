@@ -29,6 +29,9 @@ def _forward_pass(model, x, y, args):
         prediction = model(x.T.to(args.device), x.to(args.device))
     convergence_metric, yhat = prediction
 
+    for name, param in model.named_paramters():
+        register_hooks(param, name)
+    
     for param in model.named_parameters():
         if param[0] == "params.W":
             param_mat = param[1]
@@ -41,6 +44,14 @@ def _forward_pass(model, x, y, args):
 
 
     return convergence_metric, yhat, loss_total, loss_mse
+
+def register_hooks(tensor, name):
+        def hook_fn(grad):
+            print(f"Gradient for {name}: {grad}")
+            if torch.isnan(grad).any():                    
+                print(f"NaN detected in gradient for {name}")
+            
+        tensor.register_hook(hook_fn)
 
 
 def train_substage(model, lr_val, l1_lambda, l2_lambda, n_epoch, n_iter, n_iter_buffer, n_iter_patience, args):
@@ -96,13 +107,7 @@ def train_substage(model, lr_val, l1_lambda, l2_lambda, n_epoch, n_iter, n_iter_
                 break
 
            
-            def register_hooks(tensor, name):
-                def hook_fn(grad):
-                    print(f"Gradient for {name}: {grad}")
-                    if torch.isnan(grad).any():
-                        print(f"NaN detected in gradient for {name}")
             
-                tensor.register_hook(hook_fn)
             
             
             
