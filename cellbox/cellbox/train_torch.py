@@ -44,6 +44,13 @@ def _forward_pass(model, x, y, args):
 
     return convergence_metric, yhat, loss_total, loss_mse
 
+
+def print_grads(module, grad_input, grad_output):
+    for name, param in model.named_parameters():
+        if param.grad is not None:
+            print(f"Parameter: {name}, Gradient: {param.grad}, Function: {param.grad.grad_fn")
+
+
 def train_substage(model, lr_val, l1_lambda, l2_lambda, n_epoch, n_iter, n_iter_buffer, n_iter_patience, args):
     """
     Training function that does one stage of training. The stage training can be repeated and modified to give better
@@ -79,7 +86,11 @@ def train_substage(model, lr_val, l1_lambda, l2_lambda, n_epoch, n_iter, n_iter_
         model.parameters(),
         lr=args.lr
     )
-
+    hooks = []
+    for name, param in model.named_parameters():
+        hook = param.register_hook(lambda grad, name=name: print(f"Parameter: {name}, Gradient: {grad}, Grad_fn: {grad.grad_fn}""))
+        hooks.append(hook)
+        
     for idx_epoch in range(n_epoch):
 
         if idx_iter > n_iter or n_unchanged > n_iter_patience:
@@ -99,7 +110,6 @@ def train_substage(model, lr_val, l1_lambda, l2_lambda, n_epoch, n_iter, n_iter_
             # Do one forward pass
             t0 = time.perf_counter()
             model.train()
-            
             args.optimizer.zero_grad()
             convergence_metric, yhat, loss_train_i, loss_train_mse_i = _forward_pass(model, x_train, y_train, args)
             loss_train_i.backward()
