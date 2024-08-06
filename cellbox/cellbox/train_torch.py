@@ -47,8 +47,7 @@ def _forward_pass(model, x, y, args):
 
 def print_grads(module, grad_input, grad_output):
     for name, param in model.named_parameters():
-        if param.grad is not None:
-            print(f"Parameter: {name}, Gradient: {param.grad}, Function: {param.grad.grad_fn}")
+        print(f"Parameter: {name}, Gradient: {param.grad}, Function: {param.grad.grad_fn}")
 
 
 def train_substage(model, lr_val, l1_lambda, l2_lambda, n_epoch, n_iter, n_iter_buffer, n_iter_patience, args):
