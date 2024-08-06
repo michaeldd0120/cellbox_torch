@@ -141,7 +141,7 @@ def train_substage(model, lr_val, l1_lambda, l2_lambda, n_epoch, n_iter, n_iter_
                     traverse_grad_fn(next_fn)
             
             print("Backpropagation Functions:")
-            traverse_grad_fn(loss.grad_fn)
+            traverse_grad_fn(loss_train_i.grad_fn)
             # inspect_gradients(model)
             
 
