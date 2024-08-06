@@ -103,6 +103,9 @@ class CellBox(PertBio):
     def forward(self, y0, mu):
         mu_t = torch.transpose(mu, 0, 1)
         mask = self._get_mask()
+        print(mask)
+        for name, param in model.named_parameters():
+            print(name, param, param.grad)
         ys = self.ode_solver(y0, mu_t, self.args.dT, self.args.n_T, self._dxdt, self.gradient_zero_from, mask=mask)
         # [n_T, n_x, batch_size]
         ys = ys[-self.args.ode_last_steps:]
@@ -114,7 +117,6 @@ class CellBox(PertBio):
         dxdt = self._dxdt(ys[-1], mu_t)
         # [n_x, batch_size] for last ODE step
         convergence_metric = torch.cat([mean, sd, dxdt], dim=0)
-        print(convergence_metric)
         return convergence_metric, yhat
     
 
