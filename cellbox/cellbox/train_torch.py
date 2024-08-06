@@ -6,6 +6,7 @@ import torch.nn as nn
 import time
 import glob
 from cellbox.utils_torch import optimize, TimeLogger
+from torchviz import make_dot
 
 def _forward_pass(model, x, y, args):
     """
@@ -118,7 +119,8 @@ def train_substage(model, lr_val, l1_lambda, l2_lambda, n_epoch, n_iter, n_iter_
             model.train()
             args.optimizer.zero_grad()
             convergence_metric, yhat, loss_train_i, loss_train_mse_i = _forward_pass(model, x_train, y_train, args)
-
+            dot = make_dot(loss_train_i, params=dict(model.named_parameters()))
+            dot.render("computational_graph", format="png")
             loss_train_i.backward()
             
 
