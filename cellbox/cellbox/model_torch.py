@@ -103,14 +103,14 @@ class CellBox(PertBio):
     
     
     def forward(self, y0, mu):
-        def print_intermediate_gradients(name, tensor):
-            def hook(grad):
-                print(f"Intermediate tensor: {name}")
-                print(f"Gradient: {grad}")
-            return hook
+        # def print_intermediate_gradients(name, tensor):
+        #     def hook(grad):
+        #         print(f"Intermediate tensor: {name}")
+        #         print(f"Gradient: {grad}")
+        #     return hook
         
-        def register_hook(tensor, name):
-            tensor.register_hook(print_intermediate_gradients(name, tensor))
+        # def register_hook(tensor, name):
+        #     tensor.register_hook(print_intermediate_gradients(name, tensor))
         
         
         
@@ -127,14 +127,14 @@ class CellBox(PertBio):
         dxdt = self._dxdt(ys[-1], mu_t)
         # [n_x, batch_size] for last ODE step
         convergence_metric = torch.cat([mean, sd, dxdt], dim=0)
-        register_hook(mu_t, 'mu_t')
-        register_hook(mask, 'mask')
-        register_hook(ys, 'ys')
-        register_hook(mean, 'mean')
-        register_hook(sd, 'sd')
-        register_hook(yhat, 'yhat')
-        register_hook(dxdt, 'dxdt')
-        register_hook(convergence_metric, 'convergence_metric')
+        # register_hook(mu_t, 'mu_t')
+        # register_hook(mask, 'mask')
+        # register_hook(ys, 'ys')
+        # register_hook(mean, 'mean')
+        # register_hook(sd, 'sd')
+        # register_hook(yhat, 'yhat')
+        # register_hook(dxdt, 'dxdt')
+        # register_hook(convergence_metric, 'convergence_metric')
 
         
         return convergence_metric, yhat
