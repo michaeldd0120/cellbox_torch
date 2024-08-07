@@ -108,6 +108,9 @@ class CellBox(PertBio):
                 print(f"Intermediate tensor: {name}")
                 print(f"Gradient: {grad}")
                 print(f"Func: {grad.grad_fn}")
+                nan_count = torch.isnan(grad).sum().item()
+                total_count = grad.numel()
+                print(f"nan {nan_count}, norm {total_count}")
             return hook
         
         def register_hook(tensor, name):
@@ -115,8 +118,8 @@ class CellBox(PertBio):
 
         mu.requires_grad_(True)
         mu_t = torch.transpose(mu, 0, 1).requires_grad_(True)
-        # mask = self._get_mask().requires_grad_(True)
-        ys = self.ode_solver(y0, mu_t, self.args.dT, self.args.n_T, self._dxdt, self.gradient_zero_from, mask=None)
+        mask = self._get_mask().requires_grad_(True)
+        ys = self.ode_solver(y0, mu_t, self.args.dT, self.args.n_T, self._dxdt, self.gradient_zero_from, mask=mask)
         # [n_T, n_x, batch_size]
         ys = ys[-self.args.ode_last_steps:].requires_grad_(True)
         # [n_iter_tail, n_x, batch_size]
@@ -129,7 +132,7 @@ class CellBox(PertBio):
         convergence_metric = torch.cat([mean, sd, dxdt], dim=0).requires_grad_(True)
         register_hook(mu, 'mu')
         register_hook(mu_t, 'mu_t')
-        # register_hook(mask, 'mask')
+        register_hook(mask, 'mask')
         register_hook(ys, 'ys')
         register_hook(mean, 'mean')
         register_hook(sd, 'sd')
