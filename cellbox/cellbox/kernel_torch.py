@@ -99,7 +99,7 @@ def heun_solver(x, t_mu, dT, n_T, _dXdt, n_activity_nodes=None, mask=None):
     def register_hook(tensor, name):
         tensor.register_hook(print_intermediate_gradients(name, tensor))
     register_hook(dxdt_mask, 'dxdt_mask')
-    register_hook(dxdt_currnet, 'dxdxt_current')
+    register_hook(dxdt_current, 'dxdt_current')
     register_hook(dxdt_next, 'dxdt_next')
     return xs
 
