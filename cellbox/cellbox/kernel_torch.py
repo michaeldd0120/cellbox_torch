@@ -32,16 +32,33 @@ def get_envelope(args):
 
 def get_dxdt(args, params):
     """calculate the derivatives dx/dt in the ODEs"""
+    def print_intermediate_gradients(name, tensor):
+            def hook(grad):
+                print(f"Intermediate tensor: {name}")
+                print(f"Gradient: {grad}")
+                print(f"Func: {grad.grad_fn}")
+                nan_count = torch.isnan(grad).sum().item()
+                total_count = grad.numel()
+                print(f"nan {nan_count}, norm {total_count}")
+            return hook
+        
+    def register_hook(tensor, name):
+        tensor.register_hook(print_intermediate_gradients(name, tensor))
+    
     if args.ode_degree == 1:
         def weighted_sum(x, mask=None):
-            if mask is not None: return torch.matmul(params['W']*mask.to(x.device), x)
+            if mask is not None: 
+                result = torch.matmul(params['W']*mask.to(x.device), x).requires_grad_(True)
+                return result
             else: return torch.matmul(params['W'], x)
     elif args.ode_degree == 2:
         def weighted_sum(x, mask=None):
             if mask is not None: torch.matmul(params['W']*mask.to(x.device), x) + torch.reshape(torch.sum(params['W']*mask, dim=1), (args.n_x, 1)) * x
-            return torch.matmul(params['W'], x) + torch.reshape(torch.sum(params['W'], dim=1), (args.n_x, 1)) * x
+            result = (torch.matmul(params['W'], x) + torch.reshape(torch.sum(params['W'], dim=1), (args.n_x, 1)) * x).requires_grad_(True)
+            return result
     else:
         raise Exception("Illegal ODE degree. Choose from [1,2].")
+    register_hook(result, 'result')
 
     if args.envelope == 0:
         # epsilon*phi(Sigma+u)-alpha*x
