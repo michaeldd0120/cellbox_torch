@@ -96,11 +96,11 @@ def get_ode_solver(args):
         return midpoint_solver
     raise Exception("Illegal ODE solver. Use [heun, euler, rk4, midpoint]")
 
-def clip_gradients(parameters, max_norm):
-    """Clip gradients of parameters to be within the specified norm."""
-    for param in parameters:
-        if param.grad is not None:
-            param.grad.data = torch.clamp(param.grad.data, min=-max_norm, max=max_norm)
+# def clip_gradients(parameters, max_norm):
+#     """Clip gradients of parameters to be within the specified norm."""
+#     for param in parameters:
+#         if param.grad is not None:
+#             param.grad.data = torch.clamp(param.grad.data, min=-max_norm, max=max_norm)
 
 
 def heun_solver(x, t_mu, dT, n_T, _dXdt, n_activity_nodes=None, mask=None):
@@ -117,7 +117,7 @@ def heun_solver(x, t_mu, dT, n_T, _dXdt, n_activity_nodes=None, mask=None):
         dxdt_current = _dXdt(x, t_mu, mask).requires_grad_(True)
         dxdt_next = _dXdt(x + dT * dxdt_current, t_mu, mask).requires_grad_(True)
         x = x + dT * 0.5 * (dxdt_current + dxdt_next) * dxdt_mask
-        clip_gradients([dxdt_current, dxdt_next, x, dxdt_mask], max_norm=1.0)
+        # clip_gradients([dxdt_current, dxdt_next, x, dxdt_mask], max_norm=1.0)
         xs.append(x)
     xs = torch.stack(xs, dim=0)
 
