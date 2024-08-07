@@ -119,7 +119,7 @@ class CellBox(PertBio):
         mu.requires_grad_(True)
         mu_t = torch.transpose(mu, 0, 1).requires_grad_(True)
         mask = self._get_mask().requires_grad_(True)
-        ys = self.ode_solver(y0, mu_t, self.args.dT, self.args.n_T, self._dxdt, self.gradient_zero_from, mask=mask)
+        yz = self.ode_solver(y0, mu_t, self.args.dT, self.args.n_T, self._dxdt, self.gradient_zero_from, mask=mask).requires_grad_(True)
         # [n_T, n_x, batch_size]
         ys = ys[-self.args.ode_last_steps:].requires_grad_(True)
         # [n_iter_tail, n_x, batch_size]
@@ -133,6 +133,7 @@ class CellBox(PertBio):
         register_hook(mu, 'mu')
         register_hook(mu_t, 'mu_t')
         register_hook(mask, 'mask')
+        register_hook(yz, 'yz')
         register_hook(ys, 'ys')
         register_hook(mean, 'mean')
         register_hook(sd, 'sd')
