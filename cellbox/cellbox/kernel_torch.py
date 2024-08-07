@@ -69,9 +69,9 @@ def get_dxdt(args, params):
             weighted = weighted_sum(x, mask).requires_grad_(True)
             envelope = args.envelope_fn(weighted + t_mu).requires_grad_(True)
             final = (params['eps'] * envelope - params['alpha'] * x).requires_grad_(True)
-            register_hook(weighted, 'weighted')
-            register_hook(envelope, 'envelope')
-            register_hook(final, 'final')
+            # register_hook(weighted, 'weighted')
+            # register_hook(envelope, 'envelope')
+            # register_hook(final, 'final')
             return final
         return func
     if args.envelope == 1:
@@ -133,9 +133,9 @@ def heun_solver(x, t_mu, dT, n_T, _dXdt, n_activity_nodes=None, mask=None):
         
     def register_hook(tensor, name):
         tensor.register_hook(print_intermediate_gradients(name, tensor))
-    register_hook(dxdt_mask, 'dxdt_mask')
-    register_hook(dxdt_current, 'dxdt_current')
-    register_hook(dxdt_next, 'dxdt_next')
+    # register_hook(dxdt_mask, 'dxdt_mask')
+    # register_hook(dxdt_current, 'dxdt_current')
+    # register_hook(dxdt_next, 'dxdt_next')
     return xs
 
 
