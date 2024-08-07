@@ -44,35 +44,6 @@ def _forward_pass(model, x, y, args):
 
     return convergence_metric, yhat, loss_total, loss_mse
 
-
-# def print_gradients_and_fn(name, param):
-#     def hook(grad):
-#         grad_fn = getattr(param.grad, 'grad_fn', 'None')
-#         print(f"Parameter: {name}, Gradient: {grad}, grad_fn: {grad_fn}")
-#     return hook
-
-# # Define a function to attach hooks to parameters
-# def attach_hooks_to_params(model):
-#     hooks = []
-#     for name, param in model.named_parameters():
-#         if param.requires_grad:
-#             hook = param.register_hook(print_gradients_and_fn(name, param))
-#             hooks.append(hook)
-#     return hooks
-
-# def inspect_gradients(model):
-#     print("Inspecting gradients after backward pass:")
-#     for name, param in model.named_parameters():
-#         if param.grad is not None:
-#             print(f"Parameter: {name}")
-#             print(f"Gradient: {param.grad}")
-#             if param.grad.grad_fn is not None:
-#                 print(f"grad_fn: {param.grad.grad_fn}")
-#             else:
-#                 print(f"grad_fn: None")
-#         else:
-#             print(f"Parameter: {name} - Gradient: None")
-
 def train_substage(model, lr_val, l1_lambda, l2_lambda, n_epoch, n_iter, n_iter_buffer, n_iter_patience, args):
     """
     Training function that does one stage of training. The stage training can be repeated and modified to give better
@@ -133,16 +104,6 @@ def train_substage(model, lr_val, l1_lambda, l2_lambda, n_epoch, n_iter, n_iter_
             convergence_metric, yhat, loss_train_i, loss_train_mse_i = _forward_pass(model, x_train, y_train, args)
             print(loss_train_i)
             loss_train_i.backward()
-            def traverse_grad_fn(grad_fn):
-                if grad_fn is None:
-                    return
-                print(grad_fn)
-                for next_fn, _ in grad_fn.next_functions:
-                    traverse_grad_fn(next_fn)
-            
-            print("Backpropagation Functions:")
-            traverse_grad_fn(loss_train_i.grad_fn)
-            # inspect_gradients(model)
             
 
             def check_nan_gradients(model):
