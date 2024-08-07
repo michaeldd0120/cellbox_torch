@@ -116,8 +116,8 @@ def heun_solver(x, t_mu, dT, n_T, _dXdt, n_activity_nodes=None, mask=None):
     for _ in range(n_T):
         dxdt_current = _dXdt(x, t_mu, mask).requires_grad_(True)
         dxdt_next = _dXdt(x + dT * dxdt_current, t_mu, mask).requires_grad_(True)
-        clip_gradients([dxdt_current, dxdt_next], max_norm=1.0)
         x = x + dT * 0.5 * (dxdt_current + dxdt_next) * dxdt_mask
+        clip_gradients([dxdt_current, dxdt_next, x, dxdt_mask], max_norm=1.0)
         xs.append(x)
     xs = torch.stack(xs, dim=0)
 
