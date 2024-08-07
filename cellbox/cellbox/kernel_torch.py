@@ -78,13 +78,13 @@ def heun_solver(x, t_mu, dT, n_T, _dXdt, n_activity_nodes=None, mask=None):
     dxdt_mask = nn.functional.pad(
         torch.ones((n_activity_nodes, 1)), 
         (0, 0, 0, n_x - n_activity_nodes)
-    ).to(x.device)
+    ).to(x.device).requires_grad_(True)
     for _ in range(n_T):
         dxdt_current = _dXdt(x, t_mu, mask)
         dxdt_next = _dXdt(x + dT * dxdt_current, t_mu, mask)
         x = x + dT * 0.5 * (dxdt_current + dxdt_next) * dxdt_mask
         xs.append(x)
-    xs = torch.stack(xs, dim=0).requires_grad_(True)
+    xs = torch.stack(xs, dim=0)
 
     def print_intermediate_gradients(name, tensor):
             def hook(grad):
@@ -98,7 +98,7 @@ def heun_solver(x, t_mu, dT, n_T, _dXdt, n_activity_nodes=None, mask=None):
         
     def register_hook(tensor, name):
         tensor.register_hook(print_intermediate_gradients(name, tensor))
-    register_hook(xs, 'xs')
+    register_hook(dxdt_mask, 'dxdt_mask')
     return xs
 
 
