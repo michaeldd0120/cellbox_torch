@@ -84,7 +84,21 @@ def heun_solver(x, t_mu, dT, n_T, _dXdt, n_activity_nodes=None, mask=None):
         dxdt_next = _dXdt(x + dT * dxdt_current, t_mu, mask)
         x = x + dT * 0.5 * (dxdt_current + dxdt_next) * dxdt_mask
         xs.append(x)
-    xs = torch.stack(xs, dim=0)
+    xs = torch.stack(xs, dim=0).requires_grad_(True)
+
+    def print_intermediate_gradients(name, tensor):
+            def hook(grad):
+                print(f"Intermediate tensor: {name}")
+                print(f"Gradient: {grad}")
+                print(f"Func: {grad.grad_fn}")
+                nan_count = torch.isnan(grad).sum().item()
+                total_count = grad.numel()
+                print(f"nan {nan_count}, norm {total_count}")
+            return hook
+        
+    def register_hook(tensor, name):
+        tensor.register_hook(print_intermediate_gradients(name, tensor))
+    register_hook(xs, 'xs')
     return xs
 
 
