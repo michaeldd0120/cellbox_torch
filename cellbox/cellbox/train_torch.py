@@ -97,12 +97,10 @@ def train_substage(model, lr_val, l1_lambda, l2_lambda, n_epoch, n_iter, n_iter_
                 break
             
             # Do one forward pass
-            # hooks = attach_hooks_to_params(model)
             t0 = time.perf_counter()
             model.train()
             args.optimizer.zero_grad()
             convergence_metric, yhat, loss_train_i, loss_train_mse_i = _forward_pass(model, x_train, y_train, args)
-            print(loss_train_i)
             loss_train_i.backward()
             # torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
 
