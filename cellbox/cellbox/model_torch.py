@@ -121,7 +121,7 @@ class CellBox(PertBio):
         mask = self._get_mask().requires_grad_(True)
         yz = self.ode_solver(y0, mu_t, self.args.dT, self.args.n_T, self._dxdt, self.gradient_zero_from, mask=mask).requires_grad_(True)
         # [n_T, n_x, batch_size]
-        ys = ys[-self.args.ode_last_steps:].requires_grad_(True)
+        ys = yz[-self.args.ode_last_steps:].requires_grad_(True)
         # [n_iter_tail, n_x, batch_size]
         #self.mask()
         mean = torch.mean(ys, dim=0).requires_grad_(True)
