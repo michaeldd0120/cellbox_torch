@@ -49,14 +49,14 @@ def get_dxdt(args, params):
         def weighted_sum(x, mask=None):
             if mask is not None: 
                 result = torch.matmul(params['W']*mask.to(x.device), x).requires_grad_(True)
-                register_hook(result, 'result')
+                # register_hook(result, 'result')
                 return result
             else: return torch.matmul(params['W'], x)
     elif args.ode_degree == 2:
         def weighted_sum(x, mask=None):
             if mask is not None: torch.matmul(params['W']*mask.to(x.device), x) + torch.reshape(torch.sum(params['W']*mask, dim=1), (args.n_x, 1)) * x
             result = (torch.matmul(params['W'], x) + torch.reshape(torch.sum(params['W'], dim=1), (args.n_x, 1)) * x).requires_grad_(True)
-            register_hook(result, 'result')
+            # register_hook(result, 'result')
             return result
     else:
         raise Exception("Illegal ODE degree. Choose from [1,2].")
