@@ -63,7 +63,7 @@ def get_dxdt(args, params):
     if args.envelope == 0:
         # epsilon*phi(Sigma+u)-alpha*x
         # return lambda x, t_mu, mask=None: params['eps'] * args.envelope_fn(weighted_sum(x, mask) + t_mu) - params['alpha'] * x
-        def func(x, t_mu, mask=None)
+        def func(x, t_mu, mask=None):
             weighted = weighted_sum(x, mask).requires_grad_(True)
             envelope = args.envelope_fn(weighted + t_mu).requires_grad_(True)
             final = (params['eps'] * envelope - params['alpha'] * x).requires_grad_(True)
