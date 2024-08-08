@@ -190,6 +190,8 @@ def loo(cfg, singles):
             "expr_test": cfg.expr[testidx].values
         })
 
+    print(len(dataset["pert_test"]))
+    print(len(dataset["expr_test"]))
     return dataset
 
 
