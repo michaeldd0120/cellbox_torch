@@ -36,12 +36,7 @@ def moving_average(sequence, n=5) :
     return ret[n - 1:] / n
 
 
-# Combined plot
-f, axes = plt.subplots(figsize = [12, 11])
-
-# Panel A
-ax = plt.subplot2grid((5, 2), (0, 0), rowspan=2)
-nma = 10
+# Loss Plot
 idx = np.where([x!='None' for x in loss['train_mse']])[0]
 plt.plot(np.arange(len(idx)-nma+1), 
          moving_average(np.array([float(x) for x in loss['train_mse'][idx]]),n=nma), 
@@ -49,16 +44,10 @@ plt.plot(np.arange(len(idx)-nma+1),
 plt.plot(np.arange(len(idx)-nma+1), 
          moving_average(np.array([float(x) for x in loss['valid_mse'][idx]]),n=nma), 
          alpha = 0.8, color="C1")
-#plt.plot(np.arange(len(idx)-nma+1), 
-#         moving_average(np.array([float(x) for x in loss['test_mse'][idx]]),n=nma), 
-#         alpha = 0.8, color="C0")
+
 plt.xlabel('Training iterations')
 plt.ylabel('Mean Squared Error')
-#custom_lines = [Line2D([0], [0], color='C2'), 
-#                Line2D([0], [0], color='C1'),
-#                Line2D([0], [0], color='C0')]
-#legend = plt.legend(custom_lines, ['Training', 'Validation', 'Test'], loc='upper right',
-#                    frameon=False)
+
 custom_lines = [Line2D([0], [0], color='C2'), 
                 Line2D([0], [0], color='C1')]
 legend = plt.legend(custom_lines, ['Training', 'Validation'], loc='upper right',
@@ -71,14 +60,35 @@ plt.title("Prediction error decreases during training",
           weight='bold', size=15)
 plt.text(-0.13,1.02,'A', weight='bold',transform=ax.transAxes)
 
+plt.savefig("MSE_loss.png")
+plt.close()
+
+
+idx = np.where([x!='None' for x in loss['train_loss']])[0]
+plt.plot(np.arange(len(idx)-nma+1), 
+         moving_average(np.array([float(x) for x in loss['train_loss'][idx]]),n=nma), 
+         alpha = 0.8, color="C2")
+plt.plot(np.arange(len(idx)-nma+1), 
+         moving_average(np.array([float(x) for x in loss['valid_loss'][idx]]),n=nma), 
+         alpha = 0.8, color="C1")
+
+plt.xlabel('Training iterations')
+plt.ylabel('Mean Squared Error')
+
+custom_lines = [Line2D([0], [0], color='C2'), 
+                Line2D([0], [0], color='C1')]
+legend = plt.legend(custom_lines, ['Training', 'Validation'], loc='upper right',
+                    frameon=False)
+ax.add_artist(legend)
+#plt.legend(['Training', 'Validation', 'Test'], frameon=False)
+plt.xticks([0,1000,2000,3000,4000])
+plt.yticks([0,0.2,0.4,0.6,0.8,1.0])
+plt.title("Prediction error decreases during training", 
+          weight='bold', size=15)
+plt.text(-0.13,1.02,'A', weight='bold',transform=ax.transAxes)
+
+plt.savefig("MSE_loss.png")
+plt.close()
 
 
 
-
-
-
-
-
-
-plt.tight_layout()
-plt.savefig("Figure2_replication.png")
