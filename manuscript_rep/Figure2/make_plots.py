@@ -25,7 +25,7 @@ id = "Pytorch_RP_fig2_rep_5thattempt_18b9f662238ffa48b9457ee6d5b5f90f"
 index='000'
 
 loss = pd.read_csv('record_eval.csv',usecols=range(8))
-noi_index = np.genfromtxt("/users/ngun7t/Documents/cellbox-jun-6/data/node_Index.csv", 
+noi_index = np.genfromtxt("node_Index.csv", 
                           dtype = str)[[2,3,82,31,40,83]]
 
 
