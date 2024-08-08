@@ -40,6 +40,7 @@ def factory(cfg):
         cfg.expr = pd.read_csv(os.path.join(cfg.root_dir, cfg.expr_file), header=None, dtype=np.float32)
     
     group_df = pd.DataFrame(np.where(cfg.pert != 0), index=['row_id', 'pert_idx']).T.groupby('row_id')
+    print(group_df)
     max_combo_degree = group_df.pert_idx.count().max()
     cfg.loo = pd.DataFrame(group_df.pert_idx.apply(
         lambda x: pad_and_realign(x, max_combo_degree, cfg.n_activity_nodes - 1)
