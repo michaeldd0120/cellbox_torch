@@ -157,7 +157,7 @@ def loo(cfg, singles):
     if singles:
         testidx = pd.concat([testidx, double_idx], axis=1)
         testidx = testidx.all(axis=1)
-
+    print(drug_index, testidx)
     nexp, _ = cfg.pert.shape
     nvalid = nexp - sum(testidx)
     ntrain = int(nvalid * cfg.validset_ratio)
