@@ -31,49 +31,23 @@ def get_envelope(args):
 
 
 def get_dxdt(args, params):
-    """calculate the derivatives dx/dt in the ODEs"""
-    def print_intermediate_gradients(name, tensor):
-            def hook(grad):
-                print(f"Intermediate tensor: {name}")
-                print(f"Gradient: {grad}")
-                print(f"Func: {grad.grad_fn}")
-                nan_count = torch.isnan(grad).sum().item()
-                total_count = grad.numel()
-                print(f"nan {nan_count}, norm {total_count}")
-            return hook
-        
-    def register_hook(tensor, name):
-        tensor.register_hook(print_intermediate_gradients(name, tensor))
-    
+    """calculate the derivatives dx/dt in the ODEs"""  
     if args.ode_degree == 1:
         def weighted_sum(x, mask=None):
-            if mask is not None: 
-                result = torch.matmul(params['W']*mask.to(x.device), x).requires_grad_(True)
-                # register_hook(result, 'result')
-                return result
+            if mask is not None: return torch.matmul(params['W']*mask, x)
             else: return torch.matmul(params['W'], x)
     elif args.ode_degree == 2:
         def weighted_sum(x, mask=None):
-            if mask is not None: torch.matmul(params['W']*mask.to(x.device), x) + torch.reshape(torch.sum(params['W']*mask, dim=1), (args.n_x, 1)) * x
-            result = (torch.matmul(params['W'], x) + torch.reshape(torch.sum(params['W'], dim=1), (args.n_x, 1)) * x).requires_grad_(True)
-            # register_hook(result, 'result')
-            return result
+            if mask is not None: torch.matmul(params['W']*mask, x) + torch.reshape(torch.sum(params['W']*mask, dim=1), (args.n_x, 1)) * x
+            return torch.matmul(params['W'], x) + torch.reshape(torch.sum(params['W'], dim=1), (args.n_x, 1)) * x
     else:
         raise Exception("Illegal ODE degree. Choose from [1,2].")
     
 
     if args.envelope == 0:
         # epsilon*phi(Sigma+u)-alpha*x
-        # return lambda x, t_mu, mask=None: params['eps'] * args.envelope_fn(weighted_sum(x, mask) + t_mu) - params['alpha'] * x
-        def func(x, t_mu, mask=None):
-            weighted = weighted_sum(x, mask).requires_grad_(True)
-            envelope = args.envelope_fn(weighted + t_mu).requires_grad_(True)
-            final = (params['eps'] * envelope - params['alpha'] * x).requires_grad_(True)
-            # register_hook(weighted, 'weighted')
-            # register_hook(envelope, 'envelope')
-            # register_hook(final, 'final')
-            return final
-        return func
+        return lambda x, t_mu, mask=None: params['eps'] * args.envelope_fn(weighted_sum(x, mask) + t_mu) - params['alpha'] * x
+
     if args.envelope == 1:
         # epsilon*[phi(Sigma)+u]-alpha*x
         return lambda x, t_mu, mask=None: params['eps'] * (args.envelope_fn(weighted_sum(x, mask)) + t_mu) - params['alpha'] * x
@@ -96,13 +70,6 @@ def get_ode_solver(args):
         return midpoint_solver
     raise Exception("Illegal ODE solver. Use [heun, euler, rk4, midpoint]")
 
-# def clip_gradients(parameters, max_norm):
-#     """Clip gradients of parameters to be within the specified norm."""
-#     for param in parameters:
-#         if param.grad is not None:
-#             param.grad.data = torch.clamp(param.grad.data, min=-max_norm, max=max_norm)
-
-
 def heun_solver(x, t_mu, dT, n_T, _dXdt, n_activity_nodes=None, mask=None):
     """Heun's ODE solver"""
     xs = []
@@ -112,30 +79,13 @@ def heun_solver(x, t_mu, dT, n_T, _dXdt, n_activity_nodes=None, mask=None):
     dxdt_mask = nn.functional.pad(
         torch.ones((n_activity_nodes, 1)), 
         (0, 0, 0, n_x - n_activity_nodes)
-    ).to(x.device).requires_grad_(True)
+    ).to(x.device)
     for _ in range(n_T):
-        dxdt_current = _dXdt(x, t_mu, mask).requires_grad_(True)
-        dxdt_next = _dXdt(x + dT * dxdt_current, t_mu, mask).requires_grad_(True)
+        dxdt_current = _dXdt(x, t_mu, mask)
+        dxdt_next = _dXdt(x + dT * dxdt_current, t_mu, mask)
         x = x + dT * 0.5 * (dxdt_current + dxdt_next) * dxdt_mask
-        # clip_gradients([dxdt_current, dxdt_next, x, dxdt_mask], max_norm=1.0)
         xs.append(x)
     xs = torch.stack(xs, dim=0)
-
-    def print_intermediate_gradients(name, tensor):
-            def hook(grad):
-                print(f"Intermediate tensor: {name}")
-                print(f"Gradient: {grad}")
-                print(f"Func: {grad.grad_fn}")
-                nan_count = torch.isnan(grad).sum().item()
-                total_count = grad.numel()
-                print(f"nan {nan_count}, norm {total_count}")
-            return hook
-        
-    def register_hook(tensor, name):
-        tensor.register_hook(print_intermediate_gradients(name, tensor))
-    # register_hook(dxdt_mask, 'dxdt_mask')
-    # register_hook(dxdt_current, 'dxdt_current')
-    # register_hook(dxdt_next, 'dxdt_next')
     return xs
 
 
