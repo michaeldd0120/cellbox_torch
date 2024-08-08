@@ -44,6 +44,7 @@ def factory(cfg):
     cfg.loo = pd.DataFrame(group_df.pert_idx.apply(
         lambda x: pad_and_realign(x, max_combo_degree, cfg.n_activity_nodes - 1)
     ).tolist())
+    print(f"cfg.loo: {cfg.loo}")
 
     # add noise
     if cfg.add_noise_level > 0:
