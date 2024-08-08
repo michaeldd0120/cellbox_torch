@@ -38,6 +38,7 @@ def moving_average(sequence, n=5) :
 
 # Loss Plot
 idx = np.where([x!='None' for x in loss['train_mse']])[0]
+nma = 10
 plt.plot(np.arange(len(idx)-nma+1), 
          moving_average(np.array([float(x) for x in loss['train_mse'][idx]]),n=nma), 
          alpha = 0.8, color="C2")
@@ -65,7 +66,6 @@ plt.close()
 
 
 idx = np.where([x!='None' for x in loss['train_loss']])[0]
-nma = 10
 plt.plot(np.arange(len(idx)-nma+1), 
          moving_average(np.array([float(x) for x in loss['train_loss'][idx]]),n=nma), 
          alpha = 0.8, color="C2")
