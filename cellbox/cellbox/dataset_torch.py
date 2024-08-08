@@ -104,7 +104,10 @@ def get_tensors(cfg):
     cfg.iter_eval = DataLoader(
         test_dataset, batch_size=cfg.batchsize, shuffle=False
     )
-
+    print(len(cfg.dataset["pert_valid"]))
+    print(len(cfg.dataset["pert_test"]))
+    print(len(test_dataset))
+    print(len(cfg.iter_eval))
     return cfg
 
 
