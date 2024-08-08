@@ -201,6 +201,7 @@ def eval_model(args, eval_iter, model, return_value, return_avg=True, n_batches_
             if n_batches_eval is not None and counter > n_batches_eval:
                 break
         print(eval_results)
+        print(yhat.detach().cpu().numpy())
         if return_avg:
             return np.mean(np.array(eval_results), axis=0)
         return np.vstack(eval_results)
