@@ -51,7 +51,7 @@ plt.ylabel('Mean Squared Error')
 
 custom_lines = [Line2D([0], [0], color='C2'), 
                 Line2D([0], [0], color='C1')]
-legend = plt.legend(custom_lines, ['Training', 'Validation'], loc='upper right',
+plt.legend(custom_lines, ['Training', 'Validation'], loc='upper right',
                     frameon=False)
 plt.add_artist(legend)
 #plt.legend(['Training', 'Validation', 'Test'], frameon=False)
@@ -78,7 +78,7 @@ plt.ylabel('Mean Squared Error')
 
 custom_lines = [Line2D([0], [0], color='C2'), 
                 Line2D([0], [0], color='C1')]
-legend = plt.legend(custom_lines, ['Training', 'Validation'], loc='upper right',
+plt.legend(custom_lines, ['Training', 'Validation'], loc='upper right',
                     frameon=False)
 plt.add_artist(legend)
 #plt.legend(['Training', 'Validation', 'Test'], frameon=False)
