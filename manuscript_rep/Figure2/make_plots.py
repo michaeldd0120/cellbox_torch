@@ -79,7 +79,6 @@ custom_lines = [Line2D([0], [0], color='C2'),
                 Line2D([0], [0], color='C1')]
 plt.legend(custom_lines, ['Training', 'Validation'], loc='upper right',
                     frameon=False)
-plt.add_artist(legend)
 #plt.legend(['Training', 'Validation', 'Test'], frameon=False)
 plt.xticks([0,1000,2000,3000,4000])
 plt.yticks([0,0.2,0.4,0.6,0.8,1.0])
@@ -87,7 +86,7 @@ plt.title("Prediction error decreases during training",
           weight='bold', size=15)
 plt.text(-0.13,1.02,'A', weight='bold')
 
-plt.savefig("MSE_loss.png")
+plt.savefig("loss.png")
 plt.close()
 
 
