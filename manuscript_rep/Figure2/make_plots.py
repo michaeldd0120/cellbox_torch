@@ -58,7 +58,7 @@ plt.xticks([0,1000,2000,3000,4000])
 plt.yticks([0,0.2,0.4,0.6,0.8,1.0])
 plt.title("Prediction error decreases during training", 
           weight='bold', size=15)
-plt.text(-0.13,1.02,'A', weight='bold',transform=ax.transAxes)
+plt.text(-0.13,1.02,'A', weight='bold')
 
 plt.savefig("MSE_loss.png")
 plt.close()
@@ -85,7 +85,7 @@ plt.xticks([0,1000,2000,3000,4000])
 plt.yticks([0,0.2,0.4,0.6,0.8,1.0])
 plt.title("Prediction error decreases during training", 
           weight='bold', size=15)
-plt.text(-0.13,1.02,'A', weight='bold',transform=ax.transAxes)
+plt.text(-0.13,1.02,'A', weight='bold')
 
 plt.savefig("MSE_loss.png")
 plt.close()
