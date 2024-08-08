@@ -15,7 +15,7 @@
   "add_noise_level": 0,
 
   "envelop_form": "tanh",
-  "dT": 0.05,
+  "dT": 0.01,
   "envelop":0,
   "ode_degree": 1,
   "ode_solver": "heun",
