@@ -40,12 +40,10 @@ def factory(cfg):
         cfg.expr = pd.read_csv(os.path.join(cfg.root_dir, cfg.expr_file), header=None, dtype=np.float32)
     
     group_df = pd.DataFrame(np.where(cfg.pert != 0), index=['row_id', 'pert_idx']).T.groupby('row_id')
-    print(group_df)
     max_combo_degree = group_df.pert_idx.count().max()
     cfg.loo = pd.DataFrame(group_df.pert_idx.apply(
         lambda x: pad_and_realign(x, max_combo_degree, cfg.n_activity_nodes - 1)
     ).tolist())
-    print(f"cfg.loo: {cfg.loo}")
 
     # add noise
     if cfg.add_noise_level > 0:
@@ -159,7 +157,6 @@ def loo(cfg, singles):
     if singles:
         testidx = pd.concat([testidx, double_idx], axis=1)
         testidx = testidx.all(axis=1)
-    print(drug_index, testidx)
     nexp, _ = cfg.pert.shape
     nvalid = nexp - sum(testidx)
     ntrain = int(nvalid * cfg.validset_ratio)
@@ -191,9 +188,7 @@ def loo(cfg, singles):
             "expr_valid": cfg.expr[~testidx].iloc[valid_pos[ntrain:], :].values,
             "expr_test": cfg.expr[testidx].values
         })
-
-    print(len(dataset["pert_test"]))
-    print(len(dataset["expr_test"]))
+        
     return dataset
 
 

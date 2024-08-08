@@ -292,7 +292,7 @@ class Screenshot(dict):
                 with torch.no_grad():
                     model.eval()
                     # Run summary on train set
-                    converge_train_mat, converge_eval_mat, converge_test_mat = [], [], []
+                    converge_train_mat, converge_eval_mat, converge_test_mat, target_eval_mat = [], [], [], []
                     for item in args.iter_train:
                         pert, expr = item
                         convergence_metric_train, _, _, _ = _forward_pass(model, pert, expr, args)
@@ -303,6 +303,7 @@ class Screenshot(dict):
                         pert, expr = item
                         convergence_metric_eval, _, _, _ = _forward_pass(model, pert, expr, args)
                         converge_eval_mat.append(convergence_metric_eval.detach().numpy())
+                        target_eval_mat.append()
                     
                     # Run summary on test set
                     for item in args.iter_eval:
