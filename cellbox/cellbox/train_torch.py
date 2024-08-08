@@ -102,28 +102,6 @@ def train_substage(model, lr_val, l1_lambda, l2_lambda, n_epoch, n_iter, n_iter_
             args.optimizer.zero_grad()
             convergence_metric, yhat, loss_train_i, loss_train_mse_i = _forward_pass(model, x_train, y_train, args)
             loss_train_i.backward()
-            # torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
-
-            # def check_nan_gradients(model):
-            #     nan_count = 0
-            #     total_params = 0
-                
-            #     for name, param in model.named_parameters():
-            #         if param.grad is not None:
-            #             # Convert gradient to numpy array for easier NaN checking
-            #             grad_numpy = param.grad.cpu().detach().numpy()
-                        
-            #             # Count NaNs in the gradients
-            #             nan_count += np.isnan(grad_numpy).sum()
-            #             total_params += grad_numpy.size
-            #     return nan_count, total_params
-
-
-            # n, t = check_nan_gradients(model)
-            # raise ValueError(f"{n}, {t}")
-            # args.optimizer.step()
-            # raise ValueError(f"{model.params['W']},                  bang bang           {torch.isnan(model.params['W']).sum().item()}")
-            # Record training
             
             with torch.no_grad():
                 model.eval()
