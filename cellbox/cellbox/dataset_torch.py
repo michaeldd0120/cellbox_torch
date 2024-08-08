@@ -94,7 +94,6 @@ def get_tensors(cfg):
         torch.from_numpy(cfg.dataset["pert_test"]), torch.from_numpy(cfg.dataset["expr_test"])
     )
 
-    print(f"Test Length: {len(test_dataset)}")
     # Prepare dataset iterators (these can be replaced with DataLoader)
     cfg.iter_train = DataLoader(
         train_dataset, batch_size=cfg.batchsize, shuffle=True
