@@ -24,6 +24,7 @@ def _forward_pass(model, x, y, args):
           and the L1 and L2 loss on the model parameters
         - loss_mse: The MSE loss between y and yhat
     """
+    print(x, y)
     if args.pert_form == "by u":
         prediction = model(torch.zeros((args.n_x, 1), dtype=torch.float32).to(args.device), x.to(args.device))
     elif args.pert_form == "fix x":
