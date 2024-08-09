@@ -79,7 +79,7 @@ def train_substage(model, lr_val, l1_lambda, l2_lambda, n_epoch, n_iter, n_iter_
         model.parameters(),
         lr=args.lr
     )
-    yhat_norms = []
+    yhats = []
 
     for idx_epoch in range(n_epoch):
 
@@ -110,8 +110,7 @@ def train_substage(model, lr_val, l1_lambda, l2_lambda, n_epoch, n_iter, n_iter_
                 valid_minibatch = iter(args.iter_monitor)
                 x_valid, y_valid = next(valid_minibatch)
                 convergence_metric, yhat, loss_valid_i, loss_valid_mse_i, y = _forward_pass(model, x_valid, y_valid, args)
-                yhat_norm = torch.norm(yhat).item()
-                yhat_norms.append(yhat_norm)
+                yhats.append(yhat.detach().cpu().numpy())
                 
 
             # Record results to screenshot
@@ -155,7 +154,7 @@ def train_substage(model, lr_val, l1_lambda, l2_lambda, n_epoch, n_iter, n_iter_
         args, args.iter_eval, model, return_value="loss_mse", n_batches_eval=args.n_batches_eval
     )
     append_record("record_eval.csv", [-1, None, None, None, None, None, loss_test_mse, time.perf_counter() - t0])
-    append_record("yhat_norms.csv", yhat_norms)
+    append_record("yhats.csv", yhats)
     # Save results
     best_params.save()
     args.logger.log("------------------ Substage {} finished!-------------------".format(substage_i))
