@@ -42,7 +42,7 @@ def _forward_pass(model, x, y, args):
         loss_total, loss_mse = args.loss_fn(y.to(args.device), yhat, param_mat, l1=args.l1_lambda, l2=args.l2_lambda)
 
 
-    return convergence_metric, yhat, loss_total, loss_mse
+    return convergence_metric, yhat, loss_total, loss_mse, y
 
 def train_substage(model, lr_val, l1_lambda, l2_lambda, n_epoch, n_iter, n_iter_buffer, n_iter_patience, args):
     """
@@ -100,7 +100,7 @@ def train_substage(model, lr_val, l1_lambda, l2_lambda, n_epoch, n_iter, n_iter_
             t0 = time.perf_counter()
             model.train()
             args.optimizer.zero_grad()
-            convergence_metric, yhat, loss_train_i, loss_train_mse_i = _forward_pass(model, x_train, y_train, args)
+            convergence_metric, yhat, loss_train_i, loss_train_mse_i, y = _forward_pass(model, x_train, y_train, args)
             loss_train_i.backward()
             args.optimizer.step()
             
@@ -108,7 +108,7 @@ def train_substage(model, lr_val, l1_lambda, l2_lambda, n_epoch, n_iter, n_iter_
                 model.eval()
                 valid_minibatch = iter(args.iter_monitor)
                 x_valid, y_valid = next(valid_minibatch)
-                convergence_metric, yhat, loss_valid_i, loss_valid_mse_i = _forward_pass(model, x_valid, y_valid, args)
+                convergence_metric, yhat, loss_valid_i, loss_valid_mse_i, y = _forward_pass(model, x_valid, y_valid, args)
                 
 
             # Record results to screenshot
@@ -188,7 +188,7 @@ def eval_model(args, eval_iter, model, return_value, return_avg=True, n_batches_
         eval_results = []
         for item in eval_iter:
             pert, expr = item
-            convergence_metric, yhat, loss_full, loss_mse = _forward_pass(model, pert, expr, args)
+            convergence_metric, yhat, loss_full, loss_mse, y = _forward_pass(model, pert, expr, args)
 
             if return_value == "prediction":
                 eval_results.append(yhat.detach().cpu().numpy())
@@ -196,6 +196,8 @@ def eval_model(args, eval_iter, model, return_value, return_avg=True, n_batches_
                 eval_results.append(loss_full.detach().cpu().numpy())
             elif return_value == "loss_mse":
                 eval_results.append(loss_mse.detach().cpu().numpy())
+            elif return_value == "target":
+                eval_results.append(y.detach().cpu().numpy())
             
             counter += 1
             if n_batches_eval is not None and counter > n_batches_eval:
@@ -282,7 +284,9 @@ class Screenshot(dict):
         if self.export_verbose > 1 or self.export_verbose == -1:  # no params but y_hat
             y_hat = eval_model(args, args.iter_eval, model, return_value="prediction", return_avg=False)
             y_hat = pd.DataFrame(y_hat, columns=node_index[0])
-            self.update({'y_hat': y_hat})
+            y = eval_model(args, args.iter_eval, model, return_value="target", return_avg=False)
+            y = pd.DataFrame(y, columns=node_index[0])
+            self.update({'y_hat': y_hat, 'y':y})
 
         if self.export_verbose > 2:
             try:
@@ -292,21 +296,21 @@ class Screenshot(dict):
                     converge_train_mat, train_target_mat, converge_eval_mat, converge_test_mat = [], [], [], []
                     for item in args.iter_train:
                         pert, expr = item
-                        convergence_metric_train, _, _, _ = _forward_pass(model, pert, expr, args)
+                        convergence_metric_train, _, _, _, _ = _forward_pass(model, pert, expr, args)
                         converge_train_mat.append(convergence_metric_train.detach().numpy())
                         
 
                     # Run summary on eval set
                     for item in args.iter_monitor:
                         pert, expr = item
-                        convergence_metric_eval, _, _, _ = _forward_pass(model, pert, expr, args)
+                        convergence_metric_eval, _, _, _, _ = _forward_pass(model, pert, expr, args)
                         converge_eval_mat.append(convergence_metric_eval.detach().numpy())
                         train_target_mat.append(expr)
 
                     # Run summary on test set
                     for item in args.iter_eval:
                         pert, expr = item
-                        convergence_metric_test, _, _, _ = _forward_pass(model, pert, expr, args)
+                        convergence_metric_test, _, _, _, _ = _forward_pass(model, pert, expr, args)
                         converge_test_mat.append(convergence_metric_test.detach().numpy())
 
                 # Concatenate the results:
