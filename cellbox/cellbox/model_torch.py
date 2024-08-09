@@ -122,7 +122,7 @@ class CellBox(PertBio):
 
 class LinReg(PertBio):
     """linear regression model"""
-    def get_variables(self):
+    def build(self):
         self.W = nn.Linear(
             in_features=self.n_x,
             out_features=self.n_x,
