@@ -18,7 +18,7 @@
   "dT": 0.01,
   "envelop":0,
   "ode_degree": 1,
-  "ode_solver": "heun",
+  "ode_solver": "rk4",
   "ode_last_steps": 2,
   "l1lambda": 1e-4,
   "l2lambda": 1e-4,
