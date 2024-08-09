@@ -289,18 +289,20 @@ class Screenshot(dict):
                 with torch.no_grad():
                     model.eval()
                     # Run summary on train set
-                    converge_train_mat, converge_eval_mat, converge_test_mat = [], [], []
+                    converge_train_mat, train_target_mat, converge_eval_mat, converge_test_mat = [], [], [], []
                     for item in args.iter_train:
                         pert, expr = item
                         convergence_metric_train, _, _, _ = _forward_pass(model, pert, expr, args)
                         converge_train_mat.append(convergence_metric_train.detach().numpy())
+                        
 
                     # Run summary on eval set
                     for item in args.iter_monitor:
                         pert, expr = item
                         convergence_metric_eval, _, _, _ = _forward_pass(model, pert, expr, args)
                         converge_eval_mat.append(convergence_metric_eval.detach().numpy())
-                    
+                        train_target_mat.append(expr)
+
                     # Run summary on test set
                     for item in args.iter_eval:
                         pert, expr = item
@@ -311,15 +313,17 @@ class Screenshot(dict):
                 converge_train_mat = np.concatenate(converge_train_mat, axis=1)
                 converge_test_mat = np.concatenate(converge_test_mat, axis=1)
                 converge_eval_mat = np.concatenate(converge_eval_mat, axis=1)
-                
+                train_target_mat = np.concatenate(train_target_mat, axis=1)
+
                 # Summarize performance
                 cols = [node_index.values + '_mean', node_index.values + '_sd', node_index.values + '_dxdt']
                 cols = np.squeeze(np.concatenate(cols)).tolist()
                 summary_train = pd.DataFrame(converge_train_mat.T, columns=cols)
                 summary_test = pd.DataFrame(converge_test_mat.T, columns=cols)
                 summary_valid = pd.DataFrame(converge_eval_mat.T, columns=cols)
+                target = pd.DataFrame(train_target_mat, columns = node_index.values)
                 self.update(
-                    {'summary_train': summary_train, 'summary_test': summary_test, 'summary_valid': summary_valid}
+                    {'summary_train': summary_train, 'summary_test': summary_test, 'summary_valid': summary_valid, 'target':target}
                 )
 
             except Exception as e:
