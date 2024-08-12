@@ -31,21 +31,23 @@ def get_envelope(args):
 
 
 def get_dxdt(args, params):
-    """calculate the derivatives dx/dt in the ODEs"""
+    """calculate the derivatives dx/dt in the ODEs"""  
     if args.ode_degree == 1:
         def weighted_sum(x, mask=None):
-            if mask is not None: return torch.matmul(params['W']*mask.to(x.device), x)
+            if mask is not None: return torch.matmul(params['W']*mask, x)
             else: return torch.matmul(params['W'], x)
     elif args.ode_degree == 2:
         def weighted_sum(x, mask=None):
-            if mask is not None: torch.matmul(params['W']*mask,to(x.device), x) + torch.reshape(torch.sum(params['W']*mask, dim=1), (args.n_x, 1)) * x
+            if mask is not None: torch.matmul(params['W']*mask, x) + torch.reshape(torch.sum(params['W']*mask, dim=1), (args.n_x, 1)) * x
             return torch.matmul(params['W'], x) + torch.reshape(torch.sum(params['W'], dim=1), (args.n_x, 1)) * x
     else:
         raise Exception("Illegal ODE degree. Choose from [1,2].")
+    
 
     if args.envelope == 0:
         # epsilon*phi(Sigma+u)-alpha*x
         return lambda x, t_mu, mask=None: params['eps'] * args.envelope_fn(weighted_sum(x, mask) + t_mu) - params['alpha'] * x
+
     if args.envelope == 1:
         # epsilon*[phi(Sigma)+u]-alpha*x
         return lambda x, t_mu, mask=None: params['eps'] * (args.envelope_fn(weighted_sum(x, mask)) + t_mu) - params['alpha'] * x
@@ -67,7 +69,6 @@ def get_ode_solver(args):
     if args.ode_solver == 'midpoint':
         return midpoint_solver
     raise Exception("Illegal ODE solver. Use [heun, euler, rk4, midpoint]")
-
 
 def heun_solver(x, t_mu, dT, n_T, _dXdt, n_activity_nodes=None, mask=None):
     """Heun's ODE solver"""

@@ -6,6 +6,7 @@ import torch.nn as nn
 import time
 import glob
 from cellbox.utils_torch import optimize, TimeLogger
+from torchviz import make_dot
 
 def _forward_pass(model, x, y, args):
     """
@@ -23,12 +24,14 @@ def _forward_pass(model, x, y, args):
           and the L1 and L2 loss on the model parameters
         - loss_mse: The MSE loss between y and yhat
     """
+    print(x, y)
     if args.pert_form == "by u":
         prediction = model(torch.zeros((args.n_x, 1), dtype=torch.float32).to(args.device), x.to(args.device))
     elif args.pert_form == "fix x":
         prediction = model(x.T.to(args.device), x.to(args.device))
     convergence_metric, yhat = prediction
 
+    
     for param in model.named_parameters():
         if param[0] == "params.W":
             param_mat = param[1]
@@ -39,8 +42,8 @@ def _forward_pass(model, x, y, args):
     else:
         loss_total, loss_mse = args.loss_fn(y.to(args.device), yhat, param_mat, l1=args.l1_lambda, l2=args.l2_lambda)
 
-    return convergence_metric, yhat, loss_total, loss_mse
 
+    return convergence_metric, yhat, loss_total, loss_mse, y
 
 def train_substage(model, lr_val, l1_lambda, l2_lambda, n_epoch, n_iter, n_iter_buffer, n_iter_patience, args):
     """
@@ -58,7 +61,7 @@ def train_substage(model, lr_val, l1_lambda, l2_lambda, n_epoch, n_iter, n_iter_
         n_iter_patience (int): training loss tolerance
         args: Args or configs
     """
-
+    
     stages = glob.glob("*best*.csv")
     try:
         substage_i = 1 + max([int(stage[0]) for stage in stages])
@@ -77,6 +80,7 @@ def train_substage(model, lr_val, l1_lambda, l2_lambda, n_epoch, n_iter, n_iter_
         model.parameters(),
         lr=args.lr
     )
+    yhats = []
 
     for idx_epoch in range(n_epoch):
 
@@ -93,21 +97,22 @@ def train_substage(model, lr_val, l1_lambda, l2_lambda, n_epoch, n_iter, n_iter_
 
             if idx_iter > n_iter or n_unchanged > n_iter_patience:
                 break
-
+            
             # Do one forward pass
             t0 = time.perf_counter()
             model.train()
             args.optimizer.zero_grad()
-            convergence_metric, yhat, loss_train_i, loss_train_mse_i = _forward_pass(model, x_train, y_train, args)
+            convergence_metric, yhat, loss_train_i, loss_train_mse_i, y = _forward_pass(model, x_train, y_train, args)
             loss_train_i.backward()
             args.optimizer.step()
-
-            # Record training
+            
             with torch.no_grad():
                 model.eval()
                 valid_minibatch = iter(args.iter_monitor)
                 x_valid, y_valid = next(valid_minibatch)
-                convergence_metric, yhat, loss_valid_i, loss_valid_mse_i = _forward_pass(model, x_valid, y_valid, args)
+                convergence_metric, yhat, loss_valid_i, loss_valid_mse_i, y = _forward_pass(model, x_valid, y_valid, args)
+                yhats.append(yhat.detach().cpu().numpy())
+                
 
             # Record results to screenshot
             new_loss = best_params.avg_n_iters_loss(loss_valid_i.item())
@@ -150,7 +155,7 @@ def train_substage(model, lr_val, l1_lambda, l2_lambda, n_epoch, n_iter, n_iter_
         args, args.iter_eval, model, return_value="loss_mse", n_batches_eval=args.n_batches_eval
     )
     append_record("record_eval.csv", [-1, None, None, None, None, None, loss_test_mse, time.perf_counter() - t0])
-
+    append_record("yhats.csv", yhats)
     # Save results
     best_params.save()
     args.logger.log("------------------ Substage {} finished!-------------------".format(substage_i))
@@ -186,7 +191,7 @@ def eval_model(args, eval_iter, model, return_value, return_avg=True, n_batches_
         eval_results = []
         for item in eval_iter:
             pert, expr = item
-            convergence_metric, yhat, loss_full, loss_mse = _forward_pass(model, pert, expr, args)
+            convergence_metric, yhat, loss_full, loss_mse, y = _forward_pass(model, pert, expr, args)
 
             if return_value == "prediction":
                 eval_results.append(yhat.detach().cpu().numpy())
@@ -194,11 +199,12 @@ def eval_model(args, eval_iter, model, return_value, return_avg=True, n_batches_
                 eval_results.append(loss_full.detach().cpu().numpy())
             elif return_value == "loss_mse":
                 eval_results.append(loss_mse.detach().cpu().numpy())
+            elif return_value == "target":
+                eval_results.append(y.detach().cpu().numpy())
             
             counter += 1
             if n_batches_eval is not None and counter > n_batches_eval:
                 break
-
         if return_avg:
             return np.mean(np.array(eval_results), axis=0)
         return np.vstack(eval_results)
@@ -281,7 +287,9 @@ class Screenshot(dict):
         if self.export_verbose > 1 or self.export_verbose == -1:  # no params but y_hat
             y_hat = eval_model(args, args.iter_eval, model, return_value="prediction", return_avg=False)
             y_hat = pd.DataFrame(y_hat, columns=node_index[0])
-            self.update({'y_hat': y_hat})
+            y = eval_model(args, args.iter_eval, model, return_value="target", return_avg=False)
+            y = pd.DataFrame(y, columns=node_index[0])
+            self.update({'y_hat': y_hat, 'y':y})
 
         if self.export_verbose > 2:
             try:
@@ -291,26 +299,28 @@ class Screenshot(dict):
                     converge_train_mat, converge_eval_mat, converge_test_mat = [], [], []
                     for item in args.iter_train:
                         pert, expr = item
-                        convergence_metric_train, _, _, _ = _forward_pass(model, pert, expr, args)
+                        convergence_metric_train, _, _, _, _ = _forward_pass(model, pert, expr, args)
                         converge_train_mat.append(convergence_metric_train.detach().numpy())
+                        
 
                     # Run summary on eval set
                     for item in args.iter_monitor:
                         pert, expr = item
-                        convergence_metric_eval, _, _, _ = _forward_pass(model, pert, expr, args)
+                        convergence_metric_eval, _, _, _, _ = _forward_pass(model, pert, expr, args)
                         converge_eval_mat.append(convergence_metric_eval.detach().numpy())
-                    
+
+
                     # Run summary on test set
                     for item in args.iter_eval:
                         pert, expr = item
-                        convergence_metric_test, _, _, _ = _forward_pass(model, pert, expr, args)
+                        convergence_metric_test, _, _, _, _ = _forward_pass(model, pert, expr, args)
                         converge_test_mat.append(convergence_metric_test.detach().numpy())
 
                 # Concatenate the results:
                 converge_train_mat = np.concatenate(converge_train_mat, axis=1)
                 converge_test_mat = np.concatenate(converge_test_mat, axis=1)
                 converge_eval_mat = np.concatenate(converge_eval_mat, axis=1)
-                
+
                 # Summarize performance
                 cols = [node_index.values + '_mean', node_index.values + '_sd', node_index.values + '_dxdt']
                 cols = np.squeeze(np.concatenate(cols)).tolist()

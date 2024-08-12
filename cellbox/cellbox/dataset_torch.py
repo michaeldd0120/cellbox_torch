@@ -104,7 +104,6 @@ def get_tensors(cfg):
     cfg.iter_eval = DataLoader(
         test_dataset, batch_size=cfg.batchsize, shuffle=False
     )
-
     return cfg
 
 
@@ -158,7 +157,6 @@ def loo(cfg, singles):
     if singles:
         testidx = pd.concat([testidx, double_idx], axis=1)
         testidx = testidx.all(axis=1)
-
     nexp, _ = cfg.pert.shape
     nvalid = nexp - sum(testidx)
     ntrain = int(nvalid * cfg.validset_ratio)
@@ -190,7 +188,7 @@ def loo(cfg, singles):
             "expr_valid": cfg.expr[~testidx].iloc[valid_pos[ntrain:], :].values,
             "expr_test": cfg.expr[testidx].values
         })
-
+        
     return dataset
 
 

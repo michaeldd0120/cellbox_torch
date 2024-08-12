@@ -100,8 +100,11 @@ class CellBox(PertBio):
         #self.params['W'] = self.params["W"] * (torch.tensor(W_mask, dtype=torch.float32))
         return torch.tensor(W_mask, dtype=torch.float32)
 
+    
+    
     def forward(self, y0, mu):
         mu_t = torch.transpose(mu, 0, 1)
+        # print(f"y0: {y0}")
         mask = self._get_mask()
         ys = self.ode_solver(y0, mu_t, self.args.dT, self.args.n_T, self._dxdt, self.gradient_zero_from, mask=mask)
         # [n_T, n_x, batch_size]
@@ -113,13 +116,13 @@ class CellBox(PertBio):
         yhat = torch.transpose(ys[-1], 0, 1)
         dxdt = self._dxdt(ys[-1], mu_t)
         # [n_x, batch_size] for last ODE step
-        convergence_metric = torch.cat([mean, sd, dxdt], dim=0)
+        convergence_metric = torch.cat([mean, sd, dxdt], dim=0)       
         return convergence_metric, yhat
     
 
 class LinReg(PertBio):
     """linear regression model"""
-    def get_variables(self):
+    def build(self):
         self.W = nn.Linear(
             in_features=self.n_x,
             out_features=self.n_x,

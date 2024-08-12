@@ -74,6 +74,7 @@ if __name__ == '__main__':
     cfg.weights = master_args.weights
     md5 = cellbox.utils_torch.md5(cfg)
     cfg.drug_index = master_args.drug_index if hasattr(master_args, "drug_index") else None
+    print(f"drug_index:  {cfg.drug_index}")
     cfg.seed = working_index + cfg.seed if hasattr(cfg, "seed") else working_index + 1000
     set_seed(cfg.seed)
     print(vars(cfg))
