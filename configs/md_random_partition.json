@@ -32,18 +32,18 @@
   "stages":[{
     "nT": 100,
     "sub_stages":[
-        {"lr_val": 0.1,"l1lambda": 0.001, "n_iter_patience":500},
+        {"lr_val": 0.1,"l1lambda": 0.01, "n_iter_patience":500},
+        {"lr_val": 0.01,"l1lambda": 0.01},
         {"lr_val": 0.01,"l1lambda": 0.0001},
-        {"lr_val": 0.01,"l1lambda": 0.00001},
         {"lr_val": 0.001,"l1lambda": 0.00001}
     ]},{
     "nT": 200,
     "sub_stages":[
-        {"lr_val": 0.001,"l1lambda": 0.00001}
+        {"lr_val": 0.001,"l1lambda": 0.0001}
     ]},{
     "nT": 400,
     "sub_stages":[
-        {"lr_val": 0.001,"l1lambda": 0.00001}
+        {"lr_val": 0.001,"l1lambda": 0.0001}
     ]}],
 
     "export_verbose": 3,
