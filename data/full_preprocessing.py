@@ -181,7 +181,6 @@ for pert_id, target in pert_id_to_targets.items():
 
     # Append it to a numpy array matrix
     vec_list.append(vec)
-pdb.set_trace()
 
 # Convert the vec_list into a numpy array then pandas
 acti_targets = [f"a{t}" for t in list(pert_id_to_targets.values())]
@@ -193,7 +192,6 @@ acti_df = acti_df.T.drop_duplicates().T
 
 # Append the two data sets
 expr_csv = prot_log.merge(acti_df, left_index=True, right_index=True)
-pdb.set_trace()
 def get_first_non_zero_column(row):
     for col, val in row.items():
         if float(val) != 0:
@@ -214,7 +212,7 @@ zeros_pert = pd.DataFrame(np.zeros_like(prot_log), columns=prot_log.columns, ind
 # Merge and save
 pert_csv = pd.merge(zeros_pert, acti_df, left_index=True, right_index=True)
 
-pdb.set_trace()
+
 # def get_first_non_zero_column(row):
 #     for col, val in row.items():
 #         if float(val) != 0:
@@ -241,7 +239,7 @@ node_index_csv.to_csv(
     header=False,
     index=False
 )
-pdb.set_trace()
+
 
 # # Signal-to-noise code, based on two assumptions:
 # # - Only data samples passing the criteria are excluded, not the whole protein column of which they are in
@@ -274,7 +272,7 @@ while (std_old == 0) or (abs(std_new - std_old) > tole):
 
 # print(f"std_old: {std_old:.3f}, std_new: {std_new:.3f}")
 inds_method_1 = list(set(inds))
-pdb.set_trace()
+
 
 
 
@@ -356,7 +354,7 @@ while np.all(std_old == 0) or np.all(np.abs(std_new - std_old) > tole):
 
 # #print(f"std_old: {std_old:.3f}, std_new: {std_new:.3f}")
 inds_method_3 = list(set(inds))
-pdb.set_trace()
+
 
 # # To retain the highest fidelity proteins, we select the ones in the middle
 inds_final = list(set(inds_method_1).intersection(set(inds_method_2)).intersection(set(inds_method_3)))
@@ -403,7 +401,7 @@ cell_viab_acti_cols = [a for a in expr_csv.columns.tolist() if a.startswith("a")
 all_cols = prots_total + cell_viab_acti_cols
 expr_csv_sub = expr_csv[all_cols].astype(float)
 pert_csv_sub = pert_csv[all_cols].astype(float)
-pdb.set_trace()
+
 # Save
 expr_csv_sub.to_csv('expr.csv', index=False, header=False)
 pert_csv_sub.to_csv('pert.csv', index=False, header=False)
