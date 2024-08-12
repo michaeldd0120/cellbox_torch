@@ -3,8 +3,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 import os
-
+import pdb
 from scipy.stats import zscore
+from sklearn.impute import SimpleImputer
 
 sns.set_theme()
 
@@ -117,13 +118,9 @@ prots_retained = list(
 # Further extract rows that no longer have the targets after removing proteins
 main_targets = df_tar["Main Target UniProtID"].tolist()
 main_targets_retained = list(set(main_targets).intersection(set(prots_retained)))
-# print(main_targets)
-# print(prots_retained)
-# for target in main_targets:
-#     if target in prots_control_not_nan:
-#         print('Nice')
 main_targets_rejected = list(set(main_targets) - set(prots_retained))
-# print(len(main_targets_rejected), len(main_targets))
+
+
 control = df_tar.loc["control"].to_frame().T
 df_tar = df_tar[df_tar["Main Target UniProtID"].isin(main_targets_retained)]
 df_tar = pd.concat([df_tar, control])
@@ -133,8 +130,6 @@ df_tar = df_tar[prots_retained + ["Cell_viability%_(cck8Drug-blk)/(control-blk)*
 # SimpleImputer with mean without control sample
 df_tar_no_control = df_tar[df_tar.index != "control"]
 control = df_tar.loc[["control"], :]
-
-from sklearn.impute import SimpleImputer
 imp = SimpleImputer(missing_values=np.nan, strategy='mean')
 np_tar = imp.fit_transform(df_tar_no_control)
 df_tar_no_control = pd.DataFrame(np_tar, columns=df_tar_no_control.columns, index=df_tar_no_control.index)
@@ -186,6 +181,7 @@ for pert_id, target in pert_id_to_targets.items():
 
     # Append it to a numpy array matrix
     vec_list.append(vec)
+pdb.set_trace()
 
 # Convert the vec_list into a numpy array then pandas
 acti_targets = [f"a{t}" for t in list(pert_id_to_targets.values())]
@@ -197,7 +193,7 @@ acti_df = acti_df.T.drop_duplicates().T
 
 # Append the two data sets
 expr_csv = prot_log.merge(acti_df, left_index=True, right_index=True)
-
+pdb.set_trace()
 def get_first_non_zero_column(row):
     for col, val in row.items():
         if float(val) != 0:
@@ -216,9 +212,9 @@ acti_df_arctanh = pd.DataFrame(
 zeros_pert = pd.DataFrame(np.zeros_like(prot_log), columns=prot_log.columns, index=prot_log.index)
 
 # Merge and save
-pert_csv = pd.merge(zeros_pert, acti_df_arctanh, left_index=True, right_index=True)
-pert_csv.iloc[:, -20:]
+pert_csv = pd.merge(zeros_pert, acti_df, left_index=True, right_index=True)
 
+pdb.set_trace()
 # def get_first_non_zero_column(row):
 #     for col, val in row.items():
 #         if float(val) != 0:
@@ -245,6 +241,7 @@ node_index_csv.to_csv(
     header=False,
     index=False
 )
+pdb.set_trace()
 
 # # Signal-to-noise code, based on two assumptions:
 # # - Only data samples passing the criteria are excluded, not the whole protein column of which they are in
@@ -277,7 +274,7 @@ while (std_old == 0) or (abs(std_new - std_old) > tole):
 
 # print(f"std_old: {std_old:.3f}, std_new: {std_new:.3f}")
 inds_method_1 = list(set(inds))
-
+pdb.set_trace()
 
 
 
@@ -359,7 +356,7 @@ while np.all(std_old == 0) or np.all(np.abs(std_new - std_old) > tole):
 
 # #print(f"std_old: {std_old:.3f}, std_new: {std_new:.3f}")
 inds_method_3 = list(set(inds))
-
+pdb.set_trace()
 
 # # To retain the highest fidelity proteins, we select the ones in the middle
 inds_final = list(set(inds_method_1).intersection(set(inds_method_2)).intersection(set(inds_method_3)))
@@ -381,8 +378,6 @@ mean_var_df['dispersion'] = abs(mean_var_df["std"] / mean_var_df["mean"])
 
 dispersion_lower = np.percentile(mean_var_df["dispersion"], 88)
 dispersion_upper = np.percentile(mean_var_df["dispersion"], 92)
-print(dispersion_lower)
-print(dispersion_upper)
 prots_high_var = mean_var_df[(mean_var_df["dispersion"] >= dispersion_lower) & (mean_var_df["dispersion"] <= dispersion_upper)].index.tolist()
 
 # Choose proteins in the dataset with no NaNs
@@ -391,7 +386,7 @@ prots_no_nan = prots_info[prots_info["NaN_prop_all_samples"] == 0.0]["proteins"]
 # Choose proteins in the dataset with intensity in range
 df_temp = expr_csv.iloc[:, :-21]
 prots_intermediate_intensity = df_temp.loc[:, ((df_temp >= intensity_lower) & (df_temp <= intensity_upper)).all()].columns.tolist()
-prots_total = prots_tar + list(set(prots_high_var).intersection(prots_no_nan).intersection(prots_intermediate_intensity))
+prots_total = list(set(prots_high_var).intersection(prots_no_nan).intersection(prots_intermediate_intensity))
 # Total prots
 prots_total = list(
     set(prots_total)
@@ -400,7 +395,7 @@ prots_total = list(
 print(f"Total proteins in subsetted dataset: {len(prots_total)}")
 
 # Subset one more time between these prots and the prots after signal-to-noise
-prots_total = list(set(prots_total).intersection(inds_final))
+prots_total = prots_tar + list(set(prots_total).intersection(inds_final))
 print(f"Total proteins after intersection with signal-to-noise proteins: {len(prots_total)}")
 
 # Subset
@@ -408,8 +403,8 @@ cell_viab_acti_cols = [a for a in expr_csv.columns.tolist() if a.startswith("a")
 all_cols = prots_total + cell_viab_acti_cols
 expr_csv_sub = expr_csv[all_cols].astype(float)
 pert_csv_sub = pert_csv[all_cols].astype(float)
-
-print(list(expr_csv_sub.columns[:125]))
+pdb.set_trace()
+# Save
 expr_csv_sub.to_csv('expr.csv', index=False, header=False)
 pert_csv_sub.to_csv('pert.csv', index=False, header=False)
 columns = pert_csv_sub.columns.tolist()
