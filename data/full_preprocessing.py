@@ -160,7 +160,7 @@ def get_log_ratios(main_targets_retained, prots_retained, df_tar):
     #     index=prot_viab_only.index
     # )
     prot_log = pd.DataFrame(
-        np.tanh((prot.to_numpy().astype(float) - control.to_numpy()).astype(float)),
+        np.tanh((prot.to_numpy().astype(float)/control.to_numpy()).astype(float)),
         columns = prot.columns,
         index = prot.index
     )
