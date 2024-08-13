@@ -162,11 +162,9 @@ control_only_diff = pd.DataFrame(
 prot_log = pd.merge(prot_only_diff, control_only_diff, left_index=True, right_index=True)
 main_targets = df[df["pert_id"].isin(df_tar.index.tolist())]["Main Target UniProtID"].tolist()
 main_targets.remove(np.nan)
-prot_log["main_targets"] = main_targets
+# prot_log["main_targets"] = main_targets
 prot_log.to_csv('prot_log.csv')
 
-print(prot_log.index)
-print(df_tar.index)
 
 vec_list = []
 for pert_id, target in pert_id_to_targets.items():
@@ -192,6 +190,9 @@ acti_df = acti_df.T.drop_duplicates().T
 
 # Append the two data sets
 expr_csv = prot_log.merge(acti_df, left_index=True, right_index=True)
+# viabilities = expr_csv['Cell_viability%_(cck8Drug-blk)/(control-blk)*100']
+# expr_csv = expr_csv.drop(columns='Cell_viability%_(cck8Drug-blk)/(control-blk)*100').merge(viabilities, left_index=True, right_index=True)
+
 def get_first_non_zero_column(row):
     for col, val in row.items():
         if float(val) != 0:
@@ -211,7 +212,8 @@ zeros_pert = pd.DataFrame(np.zeros_like(prot_log), columns=prot_log.columns, ind
 
 # Merge and save
 pert_csv = pd.merge(zeros_pert, acti_df, left_index=True, right_index=True)
-
+# viabilities = pert_csv['Cell_viability%_(cck8Drug-blk)/(control-blk)*100']
+# pert_csv = pert_csv.drop(columns='Cell_viability%_(cck8Drug-blk)/(control-blk)*100').merge(viabilities, left_index=True, right_index=True)
 
 # def get_first_non_zero_column(row):
 #     for col, val in row.items():
@@ -363,7 +365,7 @@ intensity_upper = 2.0
 intensity_lower = -4.0
 
 # Choose target proteins
-prots_tar = [p[1:] for p in expr_csv.columns.tolist()[-20:]]
+prots_tar = [p[1:] for p in expr_csv.columns.tolist()[-21:]]
 
 # Choose proteins in the dataset with high log2 variance, using df_tar values (log2(intensity))
 df_tar_temp = df_tar.iloc[:, :-1].dropna(axis=1)
@@ -384,7 +386,7 @@ prots_no_nan = prots_info[prots_info["NaN_prop_all_samples"] == 0.0]["proteins"]
 # Choose proteins in the dataset with intensity in range
 df_temp = expr_csv.iloc[:, :-21]
 prots_intermediate_intensity = df_temp.loc[:, ((df_temp >= intensity_lower) & (df_temp <= intensity_upper)).all()].columns.tolist()
-prots_total = list(set(prots_high_var).intersection(prots_no_nan).intersection(prots_intermediate_intensity))
+prots_total = prots_tar + list(set(prots_high_var).intersection(prots_no_nan).intersection(prots_intermediate_intensity))
 # Total prots
 prots_total = list(
     set(prots_total)
@@ -393,8 +395,8 @@ prots_total = list(
 print(f"Total proteins in subsetted dataset: {len(prots_total)}")
 
 # Subset one more time between these prots and the prots after signal-to-noise
-prots_total = prots_tar + list(set(prots_total).intersection(inds_final))
-print(f"Total proteins after intersection with signal-to-noise proteins: {len(prots_total)}")
+# prots_total = prots_tar + list(set(prots_total).intersection(inds_final))
+# print(f"Total proteins after intersection with signal-to-noise proteins: {len(prots_total)}")
 
 # Subset
 cell_viab_acti_cols = [a for a in expr_csv.columns.tolist() if a.startswith("a")] + ["Cell_viability%_(cck8Drug-blk)/(control-blk)*100"]
