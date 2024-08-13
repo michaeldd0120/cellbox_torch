@@ -351,7 +351,7 @@ def variability_intensity_filter(expr_csv, df_tar):
     intensity_lower = -4.0
 
     # Choose target proteins
-    prots_tar = [p[1:] for p in expr_csv.columns.tolist()[-21:]]
+    prots_tar = [p[1:] for p in expr_csv.columns.tolist()[-20:]]
 
     # Choose proteins in the dataset with high log2 variance, using df_tar values (log2(intensity))
     df_tar_temp = df_tar.iloc[:, :-1].dropna(axis=1)
@@ -362,9 +362,10 @@ def variability_intensity_filter(expr_csv, df_tar):
     mean_var_df = variances.merge(means, right_index=True, left_index=True)
     mean_var_df['dispersion'] = abs(mean_var_df["std"] / mean_var_df["mean"])
 
-    dispersion_lower = np.percentile(mean_var_df["dispersion"], 88)
-    dispersion_upper = np.percentile(mean_var_df["dispersion"], 92)
-    prots_high_var = mean_var_df[(mean_var_df["dispersion"] >= dispersion_lower) & (mean_var_df["dispersion"] <= dispersion_upper)].index.tolist()
+    dispersion_lower = np.percentile(mean_var_df["dispersion"], 95)
+    # dispersion_upper = np.percentile(mean_var_df["dispersion"], 92)
+    # prots_high_var = mean_var_df[(mean_var_df["dispersion"] >= dispersion_lower) & (mean_var_df["dispersion"] <= dispersion_upper)].index.tolist()
+    prots_high_var = mean_var_df[(mean_var_df["dispersion"] >= dispersion_lower)].index.tolist()
 
     # Choose proteins in the dataset with no NaNs
     prots_no_nan = prots_info[prots_info["NaN_prop_all_samples"] == 0.0]["proteins"].tolist()
@@ -379,7 +380,7 @@ def variability_intensity_filter(expr_csv, df_tar):
         .intersection(expr_csv.columns.tolist())
     )
     print(f"Total proteins in subsetted dataset: {len(prots_total)}")
-    return prots_total
+    return prots_total, prots_tar
 
 def combine_and_save(prots_total, expr_csv, pert_csv):
     # Subset one more time between these prots and the prots after signal-to-noise
@@ -406,5 +407,6 @@ prot_log, pert_id_to_targets = get_log_ratios(main_targets_retained, prots_retai
 acti_df = make_activity_nodes(prot_log, pert_id_to_targets)
 expr_csv, pert_csv, node_index_csv = make_cellbox_files(prot_log, acti_df)
 signal_indices = signal_to_noise_filter(expr_csv)
-prots_total = variability_intensity_filter(expr_csv, df_tar)
-combine_and_save(prots_total, expr_csv, pert_csv)
+prots_total, target_prots = variability_intensity_filter(expr_csv, df_tar)
+total_proteins = list(set(prots_total).intersection(set(signal_indices)).union(set(target_prots)))
+combine_and_save(total_proteins, expr_csv, pert_csv)
