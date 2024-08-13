@@ -144,4 +144,5 @@ def rk4_solver(x, t_mu, dT, n_T, _dXdt, n_activity_nodes=None, mask=None):
         x = x + dT * (1/6*k1+1/3*k2+1/3*k3+1/6*k4) * dxdt_mask
         xs.append(x)
     xs = torch.stack(xs, dim=0)
+    print(f"xs: {xs}/n")
     return xs
