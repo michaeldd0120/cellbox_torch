@@ -140,27 +140,32 @@ def get_log_ratios(main_targets_retained, prots_retained, df_tar):
     control = df_tar.loc[["control"]]
     prot = df_tar[df_tar.index != 'control']
 
-    # Transform the data by log2(pert/control) = log2(pert) - log2(control)
-    prot_prot_only = prot.drop("Cell_viability%_(cck8Drug-blk)/(control-blk)*100", axis=1)
-    control_prot_only = control.drop("Cell_viability%_(cck8Drug-blk)/(control-blk)*100", axis=1)
+    # Transform the data by tanh(pert/control)
+    # prot_prot_only = prot.drop("Cell_viability%_(cck8Drug-blk)/(control-blk)*100", axis=1)
+    # control_prot_only = control.drop("Cell_viability%_(cck8Drug-blk)/(control-blk)*100", axis=1)
 
-    # The prots
-    prot_only_diff = pd.DataFrame(
-        np.log2((prot_prot_only.to_numpy()/control_prot_only.to_numpy()).astype(float)),
-        columns=prot_prot_only.columns,
-        index=prot_prot_only.index
+    # # The prots
+    # prot_only_diff = pd.DataFrame(
+    #     np.tanh((prot_prot_only.to_numpy() - control_prot_only.to_numpy()).astype(float)),
+    #     columns=prot_prot_only.columns,
+    #     index=prot_prot_only.index
+    # )
+
+    # # The cell viability
+    # prot_viab_only = prot[["Cell_viability%_(cck8Drug-blk)/(control-blk)*100"]]
+    # control_viab_only = control[["Cell_viability%_(cck8Drug-blk)/(control-blk)*100"]]
+    # control_only_diff = pd.DataFrame(
+    #     np.tanh((prot_viab_only.to_numpy() - control_viab_only.to_numpy()).astype(float)),
+    #     columns=prot_viab_only.columns,
+    #     index=prot_viab_only.index
+    # )
+    prot_log = pd.DataFrame(
+        np.tanh((prot.to_numpy().astype(float) - control.to_numpy()).astype(float)),
+        columns = prot.columns,
+        index = prot.index
     )
 
-    # The cell viability
-    prot_viab_only = prot[["Cell_viability%_(cck8Drug-blk)/(control-blk)*100"]]
-    control_viab_only = control[["Cell_viability%_(cck8Drug-blk)/(control-blk)*100"]]
-    control_only_diff = pd.DataFrame(
-        np.log2((prot_viab_only.to_numpy()/control_viab_only.to_numpy()).astype(float)),
-        columns=prot_viab_only.columns,
-        index=prot_viab_only.index
-    )
-
-    prot_log = pd.merge(prot_only_diff, control_only_diff, left_index=True, right_index=True)
+    # prot_log = pd.merge(prot_only_diff, control_only_diff, left_index=True, right_index=True)
     main_targets = df[df["pert_id"].isin(df_tar.index.tolist())]["Main Target UniProtID"].tolist()
     main_targets.remove(np.nan)
     # prot_log["main_targets"] = main_targets
@@ -174,7 +179,7 @@ def make_activity_nodes(prot_log, pert_id_to_targets):
         target_pert = prot_log.loc[pert_id, target]
 
         # Convert it into a one-hot representation
-        vec = [0.0 if t != target else np.tanh(target_pert) for t in list(pert_id_to_targets.values())]
+        vec = [0.0 if t != target else target_pert for t in list(pert_id_to_targets.values())]
         if (sum(vec) == 0): print(f"{pert_id} has a problem")
         vec = [pert_id] + vec
 
@@ -195,9 +200,13 @@ def make_cellbox_files(prot_log, acti_df):
 
     # Create a dataframe similar to prot_log but filled with all 0s
     zeros_pert = pd.DataFrame(np.zeros_like(prot_log), columns=prot_log.columns, index=prot_log.index)
+    acti_df_arctanh = pd.DataFrame(
+        np.arctanh(acti_df.to_numpy().astype(float)),
+        columns=acti_df.columns, index=acti_df.index
+    )
 
     # Merge and save
-    pert_csv = pd.merge(zeros_pert, acti_df, left_index=True, right_index=True)
+    pert_csv = pd.merge(zeros_pert, acti_df_arctanh, left_index=True, right_index=True)
     columns = pert_csv.columns.tolist()
     node_index_csv = pd.DataFrame({"A": columns})
 
