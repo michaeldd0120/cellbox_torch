@@ -16,7 +16,7 @@
 
   "envelop_form": "tanh",
   "pert_form": "fix x",
-  "dT": 0.1,
+  "dT": 0.05,
   "envelop":0,
   "ode_degree": 1,
   "ode_solver": "rk4",
