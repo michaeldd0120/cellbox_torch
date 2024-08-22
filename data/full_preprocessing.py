@@ -160,7 +160,7 @@ def get_log_ratios(main_targets_retained, prots_retained, df_tar):
     #     index=prot_viab_only.index
     # )
     prot_log = pd.DataFrame(
-        np.tanh((prot.to_numpy().astype(float)/control.to_numpy()).astype(float)),
+        np.log2((prot.to_numpy().astype(float)/control.to_numpy()).astype(float)),
         columns = prot.columns,
         index = prot.index
     )
@@ -382,14 +382,14 @@ def variability_intensity_filter(expr_csv, df_tar):
     print(f"Total proteins in subsetted dataset: {len(prots_total)}")
     return prots_total, prots_tar
 
-def combine_and_save(prots_total, expr_csv, pert_csv):
+def combine_and_save(total_proteins, expr_csv, pert_csv):
     # Subset one more time between these prots and the prots after signal-to-noise
     # prots_total = prots_tar + list(set(prots_total).intersection(inds_final))
     # print(f"Total proteins after intersection with signal-to-noise proteins: {len(prots_total)}")
 
     # Subset
     cell_viab_acti_cols = [a for a in expr_csv.columns.tolist() if a.startswith("a")] + ["Cell_viability%_(cck8Drug-blk)/(control-blk)*100"]
-    all_cols = prots_total + cell_viab_acti_cols
+    all_cols = total_proteins + cell_viab_acti_cols
     expr_csv_sub = expr_csv[all_cols].astype(float)
     pert_csv_sub = pert_csv[all_cols].astype(float)
 
@@ -408,5 +408,7 @@ acti_df = make_activity_nodes(prot_log, pert_id_to_targets)
 expr_csv, pert_csv, node_index_csv = make_cellbox_files(prot_log, acti_df)
 signal_indices = signal_to_noise_filter(expr_csv)
 prots_total, target_prots = variability_intensity_filter(expr_csv, df_tar)
+print(len(prots_total))
 total_proteins = list(set(prots_total).intersection(set(signal_indices)).union(set(target_prots)))
+print(len(total_proteins))
 combine_and_save(total_proteins, expr_csv, pert_csv)
